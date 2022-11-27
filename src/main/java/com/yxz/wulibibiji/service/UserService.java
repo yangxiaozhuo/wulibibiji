@@ -5,6 +5,7 @@ import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
 
@@ -21,4 +22,10 @@ public interface UserService extends IService<User> {
     public Result create(LoginFormDTO loginFormDTO);
 
     Result login(LoginFormDTO loginForm, HttpSession session);
+
+    Result edit(User user);
+
+    Result uploadAvatar(MultipartFile file);
+
+    Result editPassword(String oldPassword, String newPassword);
 }

@@ -17,4 +17,8 @@ public class SystemConstants {
      * 最大页面大小
      */
     public static final int MAX_PAGE_SIZE = 10;
+    /**
+     * 成功的code
+     */
+    public static final int SUCCESS_CODE = 200;
 }

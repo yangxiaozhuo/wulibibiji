@@ -1,5 +1,6 @@
 package com.yxz.wulibibiji.service;
 
+import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.entity.Category;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -10,4 +11,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface CategoryService extends IService<Category> {
 
+    Result getCategoryList();
+
+    Result getCategoryById(Integer id);
 }

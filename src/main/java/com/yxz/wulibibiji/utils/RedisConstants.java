@@ -42,5 +42,5 @@ public class RedisConstants {
     /**
      * 文章分类名的key
      */
-    public static final String ARTICLE_CATEGORY_NAME = "article:category:name:";
+    public static final String ARTICLE_CATEGORY_NAME = "category:cache:name";
 }

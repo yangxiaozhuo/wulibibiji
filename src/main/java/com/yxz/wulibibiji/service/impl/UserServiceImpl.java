@@ -3,18 +3,22 @@ package com.yxz.wulibibiji.service.impl;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestAlgorithm;
 import cn.hutool.crypto.digest.Digester;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yxz.wulibibiji.dto.LoginFormDTO;
 import com.yxz.wulibibiji.dto.Result;
+import com.yxz.wulibibiji.dto.UserDTO;
 import com.yxz.wulibibiji.entity.User;
 import com.yxz.wulibibiji.mapper.UserMapper;
 import com.yxz.wulibibiji.service.UserService;
 import com.yxz.wulibibiji.utils.MailClient;
+import com.yxz.wulibibiji.utils.UserHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
@@ -55,23 +59,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (this.getById(email) != null) {
             return Result.fail("此用户已经存在");
         }
-
-        Context context = new Context();
-        //生成位code字符串
-        String code = RandomUtil.randomNumbers(6);
-        String key = CREATE_CODE_KEY + email;
-        //redis新增缓存
-        stringRedisTemplate.opsForValue().set(key, code, CREATECODE_TTL, TimeUnit.MINUTES);
-
-        context.setVariable("code", code);
-        String content = templateEngine.process("mail/mail", context);
-        System.out.println(content);
-        try {
-            mailClient.sendMail(email, "欢迎加入武理哔哔机", content);
-        } catch (Exception e) {
-            return Result.fail("发送邮件失败");
-        }
-        return Result.ok();
+        //发email验证码
+        return sentEmail(email);
     }
 
     @Override
@@ -100,9 +89,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         //1.验证邮箱 2.验证账号密码 3.不存在或不一致 报错
         String email = loginForm.getEmail();
         String password = loginForm.getPassword();
-        User user = query().eq("user_id", email).eq("password", password).one();
+        User user = query().eq("user_id", email).one();
         if (user == null) {
             return Result.fail("该用户未注册");
+        }
+        if (!user.getPassword().equals(loginForm.getPassword())) {
+            return Result.fail("账号或用户名错误,请核实后再试!");
         }
         String token = UUID.randomUUID().toString(true);
         String key = LOGIN_USER_KEY + token;
@@ -113,10 +105,121 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         map.put("sex", user.getSex().toString());
         stringRedisTemplate.opsForHash().putAll(key, map);
         stringRedisTemplate.expire(key, LOGIN_USER_TTL, TimeUnit.HOURS);
-        session.setAttribute("authorization",token);
+        session.setAttribute("authorization", token);
         return Result.ok();
     }
 
+    @Override
+    public Result edit(User user) {
+        UserDTO userDTO = UserHolder.getUser();
+        String nickname = user.getNickname();
+        Integer sex = user.getSex();
+        if (StrUtil.isBlank(nickname) && (sex == null || sex.equals(userDTO.getSex()))) {
+            return Result.fail("上传的信息为空!");
+        }
+        if (sex != null && sex != 1 && sex != 0) {
+            return Result.fail("性别不存在");
+        }
+        if (StrUtil.isBlank(nickname)) {
+            user.setNickname(userDTO.getNickName());
+        }
+        user.setUserId(userDTO.getEmail());
+        boolean update = this.updateById(user);
+        if (update) {
+            return Result.ok();
+        } else {
+            return Result.fail("服务器错误,上传失败!");
+        }
+    }
+
+    @Override
+    public Result uploadAvatar(MultipartFile file) {
+        /*try {
+            //获取文件的内容
+            InputStream is = file.getInputStream();
+            //获取原始文件名
+            String originalFilename = file.getOriginalFilename();
+            //生成一个uuid名称出来
+            String uuidFilename = UploadUtils.getUUIDName(originalFilename);
+
+            //产生一个随机目录
+            String randomDir = UploadUtils.getDir();
+
+            File fileDir = new File("D:/uploadfiles" + randomDir);
+            //若文件夹不存在,则创建出文件夹
+            if (!fileDir.exists()) {
+                fileDir.mkdirs();
+            }
+            //创建新的文件夹
+            File newFile = new File("D:/uploadfiles" + randomDir, uuidFilename);
+            //将文件输出到目标的文件中
+            file.transferTo(newFile);
+
+            //将保存的文件路径更新到用户信息headimg中
+            String savePath = randomDir + "/" + uuidFilename;
+
+            //获取当前的user
+            User user = (User) session.getAttribute("user");
+            //设置头像图片路径
+            user.setAvatar(savePath);
+
+            //调用业务更新user
+            updateById(user);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Result.fail("服务器错误上传失败");
+        }*/
+        return Result.fail("还没写");
+    }
+
+    @Override
+    public Result editPassword(String oldPassword, String newPassword) {
+        String email = UserHolder.getUser().getEmail();
+        User user = getById(email);
+        if (!user.getPassword().equals(oldPassword)) {
+            return Result.fail("原密码不正确");
+        }
+        if (!checkPassword(newPassword)) {
+            return Result.fail("密码不符合要求");
+        }
+        user.setPassword(newPassword);
+        Digester md5 = new Digester(DigestAlgorithm.MD5);
+        String passwordMd5 = md5.digestHex(newPassword);
+        user.setSalt(passwordMd5);
+        boolean flag = this.updateById(user);
+        if (flag) {
+            return Result.ok("修改密码成功");
+        } else {
+            return Result.fail("服务器错误，请稍后再试");
+        }
+    }
+
+    private Result sentEmail(String email) {
+        //发email验证码
+        Context context = new Context();
+        //生成位code字符串
+        String code = RandomUtil.randomNumbers(6);
+        String key = CREATE_CODE_KEY + email;
+        //redis新增缓存
+        stringRedisTemplate.opsForValue().set(key, code, CREATECODE_TTL, TimeUnit.MINUTES);
+
+        context.setVariable("code", code);
+        String content = templateEngine.process("mail/mail", context);
+        try {
+            mailClient.sendMail(email, "欢迎加入武理哔哔机", content);
+        } catch (Exception e) {
+            return Result.fail("发送邮件失败");
+        }
+        return Result.ok();
+    }
+
+    /**
+     * 校验密码是否符合要求
+     *
+     * @param password
+     * @return
+     */
     private boolean checkPassword(String password) {
         if (password.length() < 6) {
             return false;

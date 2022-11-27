@@ -23,12 +23,12 @@ spring:
     host: 1.117.158.138
     port: 6379
     password: 123321
-    lettuce:
+    timeout: 6000
+    jedis:
       pool:
-        max-active: 10
-        max-idle: 10
-        min-idle: 1
-        time-between-eviction-runs: 10s
+        max-active: 50
+        max-idle: 20
+        min-idle: 2
 
   #邮件
   mail:

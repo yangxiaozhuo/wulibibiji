@@ -1,8 +1,6 @@
 package com.yxz.wulibibiji.service.impl;
 
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.io.unit.DataUnit;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONConfig;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -11,7 +9,6 @@ import com.yxz.wulibibiji.dto.ArticleDTO;
 import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.dto.UserDTO;
 import com.yxz.wulibibiji.entity.Article;
-import com.yxz.wulibibiji.entity.Category;
 import com.yxz.wulibibiji.entity.User;
 import com.yxz.wulibibiji.mapper.ArticleMapper;
 import com.yxz.wulibibiji.service.ArticleService;
@@ -22,11 +19,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 
-import static com.yxz.wulibibiji.utils.RedisConstants.*;
+import static com.yxz.wulibibiji.utils.RedisConstants.ARTICLE_LIKED_KEY;
+import static com.yxz.wulibibiji.utils.RedisConstants.CACHE_ARTICLE_NEW_KEY;
 import static com.yxz.wulibibiji.utils.SystemConstants.MAX_PAGE_SIZE;
+import static com.yxz.wulibibiji.utils.SystemConstants.SUCCESS_CODE;
 
 /**
  * @author Yang
@@ -92,15 +90,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (articleDTO.getArticleTitle().length() > 40) {
             return Result.fail("标题最多不允许超过40个字符");
         }
-        String key = ARTICLE_CATEGORY_NAME + articleDTO.getArticleCategoryId();
-        String categoryName = stringRedisTemplate.opsForValue().get(key);
-        if (categoryName == null) {
-            reflashCategory();
-            categoryName = stringRedisTemplate.opsForValue().get(key);
-            if (categoryName == null) {
-                return Result.fail("没有这个文章类别，请重新选择");
-            }
+        Result result = categoryService.getCategoryById(articleDTO.getArticleCategoryId());
+        if (result.getCode() != SUCCESS_CODE) {
+            return result;
         }
+        String categoryName = (String) result.getData();
         Article article = new Article(null, articleDTO.getArticleTitle(),
                 articleDTO.getArticleContent(),
                 0, 0, 0, DateUtil.date(), DateUtil.date(), articleDTO.getArticleImgCount(),
@@ -110,15 +104,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         return Result.ok(page);
     }
 
-    //更新category的redis缓存
-    private void reflashCategory() {
-        List<Category> list = categoryService.list();
-        for (int i = 0; i < list.size(); i++) {
-            Category category = list.get(i);
-            String key = ARTICLE_CATEGORY_NAME + category.getCategoryId();
-            stringRedisTemplate.opsForValue().set(key, category.getCategoryName());
-        }
-    }
 
     private void isArticleLiked(Article article) {
         //1获取登录用户
