@@ -13,7 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.io.File;
 
 @SpringBootTest
-class WulibibijiApplicationTests {
+class QiNiuImg {
 
     @Test
     void contextLoads() {
