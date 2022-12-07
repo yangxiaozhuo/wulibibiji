@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yxz.wulibibiji.mapper.SoncommentMapper">
+
+    <resultMap id="BaseResultMap" type="com.yxz.wulibibiji.entity.Soncomment">
+            <id property="sonCommentId" column="son_comment_id" jdbcType="INTEGER"/>
+            <result property="sonCommentParentId" column="son_comment_parent_id" jdbcType="INTEGER"/>
+            <result property="sonCommentUserId" column="son_comment_user_id" jdbcType="VARCHAR"/>
+            <result property="sonCommentReplyUserId" column="son_comment_reply_user_id" jdbcType="VARCHAR"/>
+            <result property="sonCommentContent" column="son_comment_content" jdbcType="VARCHAR"/>
+            <result property="sonCommentLikeCount" column="son_comment_like_count" jdbcType="INTEGER"/>
+            <result property="sonCommentCreatedTime" column="son_comment_created_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        son_comment_id,son_comment_parent_id,son_comment_user_id,
+        son_comment_reply_user_id,son_comment_content,son_comment_like_count,
+        son_comment_created_time
+    </sql>
+</mapper>
