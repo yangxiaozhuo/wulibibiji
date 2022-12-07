@@ -52,3 +52,13 @@ mybatis:
 logging:
   level:
     com.yxz.wulibibiji: debug
+
+
+#七牛配置
+qiniu:
+  AccessKey: mqR_w9-ekk8-vvesS7J4xxGJC8ZDt9ukkj0B0Q30
+  SecretKey: C5j_VX3ItyEIQjOggdRL-et-Y31TOmfEynQ7_8ON
+  Bucket: wulibibiji
+  cdn:
+    prefix: rmhgi5uy2.hd-bkt.clouddn.com
+

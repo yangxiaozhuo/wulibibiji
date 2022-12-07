@@ -97,7 +97,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         String categoryName = (String) result.getData();
         Article article = new Article(null, articleDTO.getArticleTitle(),
                 articleDTO.getArticleContent(),
-                0, 0, 0, DateUtil.date(), DateUtil.date(), articleDTO.getArticleImgCount(),
+                0, 0, 0, DateUtil.date(), DateUtil.date(), articleDTO.getArticleImg(),
                 0, articleDTO.getArticleCategoryId(), user.getEmail(), categoryName);
         this.save(article);
         Page<Article> page = reflashNewArticle(CACHE_ARTICLE_NEW_KEY + 1, 1);

@@ -21,7 +21,7 @@ public class ArticleDTO {
     /**
      * 文章图片数量
      */
-    private Integer articleImgCount;
+    private String articleImg;
 
     /**
      * 外键，对应category_id
@@ -31,10 +31,10 @@ public class ArticleDTO {
     public ArticleDTO() {
     }
 
-    public ArticleDTO(String articleTitle, String articleContent, Integer articleImgCount, Integer articleCategoryId) {
+    public ArticleDTO(String articleTitle, String articleContent, String articleImgCount, Integer articleCategoryId) {
         this.articleTitle = articleTitle;
         this.articleContent = articleContent;
-        this.articleImgCount = articleImgCount;
+        this.articleImg = articleImg;
         this.articleCategoryId = articleCategoryId;
     }
 
@@ -54,12 +54,12 @@ public class ArticleDTO {
         this.articleContent = articleContent;
     }
 
-    public Integer getArticleImgCount() {
-        return articleImgCount;
+    public String getArticleImg() {
+        return articleImg;
     }
 
-    public void setArticleImgCount(Integer articleImgCount) {
-        this.articleImgCount = articleImgCount;
+    public void setArticleImgCount(String articleImg) {
+        this.articleImg = articleImg;
     }
 
     public Integer getArticleCategoryId() {

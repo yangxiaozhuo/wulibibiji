@@ -53,9 +53,9 @@ public class Article implements Serializable {
     private Date updateTime;
 
     /**
-     * 文章图片数量
+     * 文章图片
      */
-    private Integer articleImgCount;
+    private String articleImg;
 
     /**
      * 逻辑删除0表示未删除，1表示删除
@@ -225,17 +225,17 @@ public class Article implements Serializable {
     }
 
     /**
-     * 文章图片数量
+     * 文章图片
      */
-    public Integer getArticleImgCount() {
-        return articleImgCount;
+    public String getArticleImg() {
+        return articleImg;
     }
 
     /**
-     * 文章图片数量
+     * 文章图片
      */
-    public void setArticleImgCount(Integer articleImgCount) {
-        this.articleImgCount = articleImgCount;
+    public void setArticleImg(String articleImg) {
+        this.articleImg = articleImg;
     }
 
     /**
@@ -297,7 +297,7 @@ public class Article implements Serializable {
     public Article() {
     }
 
-    public Article(Integer articleId, String articleTitle, String articleContent, Integer articleViewCount, Integer articleLikeCount, Integer articleCommentCount, Date createdTime, Date updateTime, Integer articleImgCount, Integer isDeleted, Integer articleCategoryId, String articleUserId, String articleCategoryName) {
+    public Article(Integer articleId, String articleTitle, String articleContent, Integer articleViewCount, Integer articleLikeCount, Integer articleCommentCount, Date createdTime, Date updateTime, String articleImg, Integer isDeleted, Integer articleCategoryId, String articleUserId, String articleCategoryName) {
         this.articleId = articleId;
         this.articleTitle = articleTitle;
         this.articleContent = articleContent;
@@ -306,7 +306,7 @@ public class Article implements Serializable {
         this.articleCommentCount = articleCommentCount;
         this.createdTime = createdTime;
         this.updateTime = updateTime;
-        this.articleImgCount = articleImgCount;
+        this.articleImg = articleImg;
         this.isDeleted = isDeleted;
         this.articleCategoryId = articleCategoryId;
         this.articleUserId = articleUserId;
@@ -333,7 +333,7 @@ public class Article implements Serializable {
             && (this.getArticleCommentCount() == null ? other.getArticleCommentCount() == null : this.getArticleCommentCount().equals(other.getArticleCommentCount()))
             && (this.getCreatedTime() == null ? other.getCreatedTime() == null : this.getCreatedTime().equals(other.getCreatedTime()))
             && (this.getUpdateTime() == null ? other.getUpdateTime() == null : this.getUpdateTime().equals(other.getUpdateTime()))
-            && (this.getArticleImgCount() == null ? other.getArticleImgCount() == null : this.getArticleImgCount().equals(other.getArticleImgCount()))
+            && (this.getArticleImg() == null ? other.getArticleImg() == null : this.getArticleImg().equals(other.getArticleImg()))
             && (this.getIsDeleted() == null ? other.getIsDeleted() == null : this.getIsDeleted().equals(other.getIsDeleted()))
             && (this.getArticleCategoryId() == null ? other.getArticleCategoryId() == null : this.getArticleCategoryId().equals(other.getArticleCategoryId()))
             && (this.getArticleUserId() == null ? other.getArticleUserId() == null : this.getArticleUserId().equals(other.getArticleUserId()))
@@ -352,7 +352,7 @@ public class Article implements Serializable {
         result = prime * result + ((getArticleCommentCount() == null) ? 0 : getArticleCommentCount().hashCode());
         result = prime * result + ((getCreatedTime() == null) ? 0 : getCreatedTime().hashCode());
         result = prime * result + ((getUpdateTime() == null) ? 0 : getUpdateTime().hashCode());
-        result = prime * result + ((getArticleImgCount() == null) ? 0 : getArticleImgCount().hashCode());
+        result = prime * result + ((getArticleImg() == null) ? 0 : getArticleImg().hashCode());
         result = prime * result + ((getIsDeleted() == null) ? 0 : getIsDeleted().hashCode());
         result = prime * result + ((getArticleCategoryId() == null) ? 0 : getArticleCategoryId().hashCode());
         result = prime * result + ((getArticleUserId() == null) ? 0 : getArticleUserId().hashCode());
@@ -374,7 +374,7 @@ public class Article implements Serializable {
         sb.append(", articleCommentCount=").append(articleCommentCount);
         sb.append(", createdTime=").append(createdTime);
         sb.append(", updateTime=").append(updateTime);
-        sb.append(", articleImgCount=").append(articleImgCount);
+        sb.append(", articleImg=").append(articleImg);
         sb.append(", isDeleted=").append(isDeleted);
         sb.append(", articleCategoryId=").append(articleCategoryId);
         sb.append(", articleUserId=").append(articleUserId);
