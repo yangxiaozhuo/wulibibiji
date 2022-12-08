@@ -19,4 +19,6 @@ public interface ArticleService extends IService<Article> {
     public Result queryHotArticle(Integer current);
 
     public Result createArticle(ArticleDTO articleDTO);
+
+
 }

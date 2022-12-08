@@ -1,7 +1,5 @@
 package com.yxz.wulibibiji.dto;
 
-import lombok.*;
-
 /**
  * @author yangxiaozhuo
  * @date 2022/11/20
@@ -19,7 +17,7 @@ public class ArticleDTO {
     private String articleContent;
 
     /**
-     * 文章图片数量
+     * 文章图片
      */
     private String articleImg;
 
@@ -31,7 +29,7 @@ public class ArticleDTO {
     public ArticleDTO() {
     }
 
-    public ArticleDTO(String articleTitle, String articleContent, String articleImgCount, Integer articleCategoryId) {
+    public ArticleDTO(String articleTitle, String articleContent, String articleImg, Integer articleCategoryId) {
         this.articleTitle = articleTitle;
         this.articleContent = articleContent;
         this.articleImg = articleImg;
@@ -58,7 +56,7 @@ public class ArticleDTO {
         return articleImg;
     }
 
-    public void setArticleImgCount(String articleImg) {
+    public void setArticleImg(String articleImg) {
         this.articleImg = articleImg;
     }
 

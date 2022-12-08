@@ -38,6 +38,13 @@ spring:
     protocol: smtps
     password: PTQKUGASGYLOMKVI
 
+  #文件上传
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 1000MB
+      max-request-size: 1000MB
+
 # 应用服务 WEB 访问端口
 server:
   port: 8081
@@ -60,5 +67,4 @@ qiniu:
   SecretKey: C5j_VX3ItyEIQjOggdRL-et-Y31TOmfEynQ7_8ON
   Bucket: wulibibiji
   cdn:
-    prefix: rmhgi5uy2.hd-bkt.clouddn.com
-
+    prefix: qiniu.yangxiaobai.top

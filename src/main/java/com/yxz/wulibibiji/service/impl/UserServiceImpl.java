@@ -1,6 +1,7 @@
 package com.yxz.wulibibiji.service.impl;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileTypeUtil;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
@@ -13,9 +14,10 @@ import com.yxz.wulibibiji.dto.UserDTO;
 import com.yxz.wulibibiji.entity.User;
 import com.yxz.wulibibiji.mapper.UserMapper;
 import com.yxz.wulibibiji.service.UserService;
-import com.yxz.wulibibiji.utils.MailClient;
-import com.yxz.wulibibiji.utils.UserHolder;
+import com.yxz.wulibibiji.service.other.IQiNiuService;
+import com.yxz.wulibibiji.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,13 +25,15 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.yxz.wulibibiji.utils.RedisConstants.*;
-import static com.yxz.wulibibiji.utils.SystemConstants.USER_NICK_NAME_PREFIX;
+import static com.yxz.wulibibiji.utils.SystemConstants.*;
 
 /**
  * @author Yang
@@ -47,6 +51,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Autowired
     private TemplateEngine templateEngine;
+
+    @Autowired
+    private IQiNiuService qiNiuService;
+
+    @Autowired
+    private HttpSession session;
 
     //发送验证码
     @Override
@@ -74,12 +84,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return Result.fail("邮箱或验证码错误，请重试");
         }
         Digester md5 = new Digester(DigestAlgorithm.MD5);
-
         // 5393554e94bf0eb6436f240a4fd71282
         String passwordMd5 = md5.digestHex(loginFormDTO.getPassword());
         User user = new User(loginFormDTO.getEmail(),
                 USER_NICK_NAME_PREFIX + loginFormDTO.getEmail().substring(0, 6),
-                loginFormDTO.getPassword(), passwordMd5, null, DateUtil.date(), 1);
+                loginFormDTO.getPassword(), passwordMd5, DEFAULT_AVATAR, DateUtil.date(), 1);
         save(user);
         return Result.ok();
     }
@@ -93,7 +102,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null) {
             return Result.fail("该用户未注册");
         }
-        if (!user.getPassword().equals(loginForm.getPassword())) {
+        if (!user.getPassword().equals(password)) {
             return Result.fail("账号或用户名错误,请核实后再试!");
         }
         String token = UUID.randomUUID().toString(true);
@@ -101,7 +110,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         Map<String, Object> map = new HashMap<>();
         map.put("email", user.getUserId());
         map.put("nickName", user.getNickname());
-        map.put("avatar", user.getAvatar());
+        map.put("avatar", IMAGE_UPLOAD_DIR + user.getAvatar());
         map.put("sex", user.getSex().toString());
         stringRedisTemplate.opsForHash().putAll(key, map);
         stringRedisTemplate.expire(key, LOGIN_USER_TTL, TimeUnit.HOURS);
@@ -133,44 +142,41 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public Result uploadAvatar(MultipartFile file) {
-        /*try {
-            //获取文件的内容
-            InputStream is = file.getInputStream();
-            //获取原始文件名
-            String originalFilename = file.getOriginalFilename();
-            //生成一个uuid名称出来
-            String uuidFilename = UploadUtils.getUUIDName(originalFilename);
-
-            //产生一个随机目录
-            String randomDir = UploadUtils.getDir();
-
-            File fileDir = new File("D:/uploadfiles" + randomDir);
-            //若文件夹不存在,则创建出文件夹
-            if (!fileDir.exists()) {
-                fileDir.mkdirs();
+    public Result uploadAvatar(MultipartFile file, HttpServletRequest request) {
+        if (!MyFileUtil.isImg(file)) {
+            return Result.fail("只支持jpg、png、webp、jpeg四种图片格式");
+        }
+        if (!MyFileUtil.sizeCheck(file,1)) {
+            return Result.fail("只支持上传大小为1MB以内的图片");
+        }
+        try {
+            UserDTO userDTO = UserHolder.getUser();
+            String format = DateUtil.format(DateUtil.date(), "yyyy/MM/");
+            String type = FileTypeUtil.getType(file.getInputStream());
+            String string = RandomUtil.randomString(10) + "." + type;
+            String key = "avatar/" + format + string;
+            Result result = qiNiuService.uploadFile(file.getInputStream(), key);
+            if (result.getCode() == 200) {
+                //更新数据库
+                User user = getById(userDTO.getEmail());
+                String oldAvatar = user.getAvatar();
+                String url = IMAGE_UPLOAD_DIR + key + WITHOUT_MARK;
+                user.setAvatar(url);
+                updateById(user);
+                //更新redis
+                String token = RedisConstants.LOGIN_USER_KEY + request.getHeader("authorization");
+                stringRedisTemplate.opsForHash().put(token, "avatar", url);
+                //删除旧头像
+                if (!oldAvatar.equals(IMAGE_UPLOAD_DIR + DEFAULT_AVATAR)) {
+                    String oldKey = oldAvatar.substring(IMAGE_UPLOAD_DIR.length(), oldAvatar.length() - WITHOUT_MARK.length());
+                    qiNiuService.delete(oldKey);
+                }
+                return Result.ok("更新成功");
             }
-            //创建新的文件夹
-            File newFile = new File("D:/uploadfiles" + randomDir, uuidFilename);
-            //将文件输出到目标的文件中
-            file.transferTo(newFile);
-
-            //将保存的文件路径更新到用户信息headimg中
-            String savePath = randomDir + "/" + uuidFilename;
-
-            //获取当前的user
-            User user = (User) session.getAttribute("user");
-            //设置头像图片路径
-            user.setAvatar(savePath);
-
-            //调用业务更新user
-            updateById(user);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return Result.fail("服务器错误上传失败");
-        }*/
-        return Result.fail("还没写");
+            return Result.fail("更新失败！");
+        } catch (Exception e) {
+            return Result.fail("系统异常！");
+        }
     }
 
     @Override

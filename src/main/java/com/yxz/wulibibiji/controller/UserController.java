@@ -8,10 +8,12 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.http.HttpRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -69,11 +71,11 @@ public class UserController {
         return userService.editPassword(oldPassword, newPassword);
     }
 
-    @ApiImplicitParam(name = "User", value = "用户User对象", dataType = "User", required = true)
-    @ApiOperation(value = "上传头像", notes = "还没写,需要前端做校验，图片后缀，大小（不超过1m）")
+    @ApiImplicitParam(name = "file", value = "图片对象", dataType = "MultipartFile", required = true)
+    @ApiOperation(value = "上传头像", notes = "需要前端做校验，图片后缀，大小（暂定不超过1m）")
     @PostMapping("/uploadAvatar")
-    public Result uploadAvatar(@RequestParam("file") MultipartFile file) {
-        return userService.uploadAvatar(file);
+    public Result uploadAvatar(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+        return userService.uploadAvatar(file, request);
     }
 
 }

@@ -1,4 +1,4 @@
-package com.yxz.wulibibiji;
+package com.yxz.wulibibiji.other;
 
 import cn.hutool.core.img.ImgUtil;
 import cn.hutool.core.io.FileUtil;
@@ -13,7 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.io.File;
 
 @SpringBootTest
-class QiNiuImg {
+class QiNiu {
 
     @Test
     void contextLoads() {
@@ -21,8 +21,8 @@ class QiNiuImg {
         if (!file.exists() || !file.isFile()) {
             System.out.println("文件不存在");
         }
-        float fileKB =  file.length() / 1024F;
-        float factor =  200 / fileKB;
+        float fileKB = file.length() / 1024F;
+        float factor = 200 / fileKB;
         ImgUtil.compress(file, FileUtil.file("C:/Users/Yang/Desktop/南湖航拍.jpg"), factor);
 //        Img.from(FileUtil.file("C:/Users/Yang/Desktop/校历.jpg"))
 //                .setQuality(0.5)//压缩比率
@@ -31,9 +31,13 @@ class QiNiuImg {
 
     @Autowired
     private QiNiuServiceImpl qiNiuService;
+
     @Test
     void qniu() throws QiniuException {
-        Result result = qiNiuService.uploadFile(FileUtil.file("C:/Users/Yang/Desktop/W020171025806768232322.jpg"));
+        File file = FileUtil.file("C:/Users/Yang/Desktop/dafultAvatar.webp");
+        String name = file.getName();
+        String key = "avatar/" + name;
+        Result result = qiNiuService.uploadFile(file, key);
         System.out.println(JSONUtil.toJsonStr(result));
     }
 

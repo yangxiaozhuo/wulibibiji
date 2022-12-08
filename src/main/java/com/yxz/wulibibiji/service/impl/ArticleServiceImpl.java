@@ -14,6 +14,7 @@ import com.yxz.wulibibiji.mapper.ArticleMapper;
 import com.yxz.wulibibiji.service.ArticleService;
 import com.yxz.wulibibiji.service.CategoryService;
 import com.yxz.wulibibiji.service.UserService;
+import com.yxz.wulibibiji.utils.SystemConstants;
 import com.yxz.wulibibiji.utils.UserHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -38,8 +39,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     private StringRedisTemplate stringRedisTemplate;
 
     @Autowired
-    private UserService userService;
-    @Autowired
     private CategoryService categoryService;
 
     @Override
@@ -61,7 +60,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         List<Article> records = page.getRecords();
         // 2.查询是否被点赞了
         records.forEach(article -> {
-            this.queryArticleUser(article);
             this.isArticleLiked(article);
         });
         stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(records, new JSONConfig().setIgnoreNullValue(false)));
@@ -75,7 +73,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         List<Article> records = page.getRecords();
         // 2.查询是否被点赞了
         records.forEach(article -> {
-            this.queryArticleUser(article);
             this.isArticleLiked(article);
         });
         return Result.ok(page);
@@ -114,13 +111,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         String key = ARTICLE_LIKED_KEY + article.getArticleCategoryId();
         Double score = stringRedisTemplate.opsForZSet().score(key, userId);
         article.setLiked(score != null);
-    }
-
-    private void queryArticleUser(Article article) {
-        String userId = article.getArticleUserId();
-        User user = userService.getById(userId);
-        article.setName(user.getNickname());
-        article.setAvatar(user.getAvatar());
     }
 }
 

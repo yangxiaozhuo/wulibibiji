@@ -2,9 +2,19 @@ package com.yxz.wulibibiji.utils;
 
 public class SystemConstants {
     /**
-     * 图片存储地方
+     * 图片存储连接
      */
-    public static final String IMAGE_UPLOAD_DIR = "F:\\nginx-1.18.0\\html\\hmdp\\imgs";
+    public static final String IMAGE_UPLOAD_DIR = "http://qiniu.yangxiaobai.top/";
+
+    /**
+     * 默认头像位置
+     */
+    public static final String DEFAULT_AVATAR = "avatar/defaultAvatar.webp";
+    /**
+     * 图片压缩后缀，压缩webp -withoutMark
+     */
+    public static final String WITHOUT_MARK = "-withoutMark";
+
     /**
      * 用户名前缀
      */

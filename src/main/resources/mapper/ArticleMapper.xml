@@ -13,7 +13,7 @@
             <result property="articleCommentCount" column="article_comment_count" jdbcType="INTEGER"/>
             <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
-            <result property="articleImgCount" column="article_img_count" jdbcType="INTEGER"/>
+            <result property="articleImg" column="article_img" jdbcType="VARCHAR"/>
             <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
             <result property="articleCategoryId" column="article_category_id" jdbcType="INTEGER"/>
             <result property="articleUserId" column="article_user_id" jdbcType="VARCHAR"/>
@@ -23,8 +23,18 @@
     <sql id="Base_Column_List">
         article_id,article_title,article_content,
         article_view_count,article_like_count,article_comment_count,
-        created_time,update_time,article_img_count,
+        created_time,update_time,article_img,
         is_deleted,article_category_id,article_user_id,
         article_category_name
     </sql>
+
+    <select id="selectPage" resultType="com.yxz.wulibibiji.entity.Article">
+        SELECT
+        article_id,article_title,article_content,
+        article_view_count,article_like_count,article_comment_count,
+        created_time,update_time,article_img,
+        is_deleted,article_category_id,article_user_id,
+        article_category_name, nickname as `name`, avatar
+         FROM `article` LEFT JOIN `user` ON user.user_id=article.article_user_id
+    </select>
 </mapper>

@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -41,9 +42,8 @@ public class QiNiuServiceImpl implements IQiNiuService, InitializingBean {
 
 
     @Override
-    public Result uploadFile(File file) throws QiniuException {
+    public Result uploadFile(File file, String key) throws QiniuException {
         String uploadToken = getUploadToken();
-        String key = "2022/12/07/b";
         Response response = this.uploadManager.put(file, key,uploadToken);
         int retry = 0;
         //重复三次
@@ -51,18 +51,45 @@ public class QiNiuServiceImpl implements IQiNiuService, InitializingBean {
             response = this.uploadManager.put(file, key, getUploadToken());
             retry++;
         }
-        System.out.println(uploadToken);
-        return Result.ok(response.bodyString());
+        if (response.isOK()) {
+            return Result.ok(response.bodyString());
+        } else {
+            return Result.fail("上传失败");
+        }
     }
 
     @Override
-    public Result uploadFile(InputStream inputStream) throws QiniuException {
-        return null;
+    public Result uploadFile(InputStream inputStream, String key) throws IOException {
+        String uploadToken = getUploadToken();
+        Response response = this.uploadManager.put(inputStream, key,uploadToken,null,null);
+        int retry = 0;
+        //重复三次
+        while (response.needRetry() && retry < 3) {
+            response = this.uploadManager.put(inputStream, key,uploadToken,null,null);
+            retry++;
+        }
+        inputStream.close();
+        if (response.isOK()) {
+            return Result.ok(response.bodyString());
+        } else {
+            return Result.fail("上传失败");
+        }
     }
 
     @Override
     public Result delete(String key) throws QiniuException {
-        return null;
+        Response response = this.bucketManager.delete(this.bucket, key);
+        int retry = 0;
+        //重复三次
+        while (response.needRetry() && retry < 3) {
+            response = this.bucketManager.delete(this.bucket, key);
+            retry++;
+        }
+        if (response.isOK()) {
+            return Result.ok(response.bodyString());
+        } else {
+            return Result.fail("删除失败");
+        }
     }
 
     @Override
