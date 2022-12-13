@@ -16,6 +16,10 @@ public class SystemConstants {
     public static final String WITHOUT_MARK = "-withoutMark";
 
     /**
+     * 图片压缩后缀，压缩webp -withMark,带水印
+     */
+    public static final String WITH_MARK = "-withMark";
+    /**
      * 用户名前缀
      */
     public static final String USER_NICK_NAME_PREFIX = "user_";

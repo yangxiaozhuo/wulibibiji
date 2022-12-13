@@ -21,7 +21,7 @@ import javax.servlet.http.HttpSession;
  * @date 2022/11/18
  */
 
-@Api(tags = "登录注册")
+@Api(tags = "用户相关接口")
 @RestController
 @RequestMapping("/user")
 public class UserController {

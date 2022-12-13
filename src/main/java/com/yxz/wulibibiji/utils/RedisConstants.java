@@ -38,9 +38,22 @@ public class RedisConstants {
     /**
      * 最新文章缓存key
      */
-    public static final String CACHE_ARTICLE_NEW_KEY = "article:cache:new:";
+    public static final String CACHE_ARTICLE_NEW_KEY = "article:cache:new";
     /**
-     * 文章分类名的key
+     * 文章分类名存为list的key
      */
-    public static final String ARTICLE_CATEGORY_NAME = "category:cache:name";
+    public static final String ARTICLE_CATEGORY_LIST = "category:cache:list";
+    /**
+     * 文章分类名存为map的key
+     */
+    public static final String ARTICLE_CATEGORY_MAP = "category:cache:map";
+
+    /**
+     * 文章发布时所存的id，用于上传图片使用
+     */
+    public static final String ARTICLE_UPLOAD_IMG_ID = "category:upload:img:id:";
+    /**
+     * 文章发布时所存的id，用于上传图片使用过期时间  1分钟
+     */
+    public static final Long ARTICLE_UPLOAD_IMG_ID_TTL = 30L;
 }

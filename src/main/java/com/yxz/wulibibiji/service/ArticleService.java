@@ -5,6 +5,9 @@ import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.entity.Article;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 
 /**
@@ -14,11 +17,12 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public interface ArticleService extends IService<Article> {
-    public Result queryNewArticle(Integer current);
+    Result queryNewArticle(Integer current);
 
-    public Result queryHotArticle(Integer current);
+    Result queryHotArticle(Integer current);
 
-    public Result createArticle(ArticleDTO articleDTO);
+    Result createArticle(ArticleDTO articleDTO);
 
 
+    Result uploadImg(List<MultipartFile> files, Integer id);
 }

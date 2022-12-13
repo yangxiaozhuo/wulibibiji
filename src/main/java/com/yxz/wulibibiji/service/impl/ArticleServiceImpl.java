@@ -1,7 +1,11 @@
 package com.yxz.wulibibiji.service.impl;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileTypeUtil;
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONConfig;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -14,18 +18,25 @@ import com.yxz.wulibibiji.mapper.ArticleMapper;
 import com.yxz.wulibibiji.service.ArticleService;
 import com.yxz.wulibibiji.service.CategoryService;
 import com.yxz.wulibibiji.service.UserService;
+import com.yxz.wulibibiji.service.other.IQiNiuService;
+import com.yxz.wulibibiji.utils.MyFileUtil;
+import com.yxz.wulibibiji.utils.RedisConstants;
 import com.yxz.wulibibiji.utils.SystemConstants;
 import com.yxz.wulibibiji.utils.UserHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-import static com.yxz.wulibibiji.utils.RedisConstants.ARTICLE_LIKED_KEY;
-import static com.yxz.wulibibiji.utils.RedisConstants.CACHE_ARTICLE_NEW_KEY;
-import static com.yxz.wulibibiji.utils.SystemConstants.MAX_PAGE_SIZE;
-import static com.yxz.wulibibiji.utils.SystemConstants.SUCCESS_CODE;
+import static com.yxz.wulibibiji.utils.RedisConstants.*;
+import static com.yxz.wulibibiji.utils.SystemConstants.*;
+import static com.yxz.wulibibiji.utils.SystemConstants.WITHOUT_MARK;
 
 /**
  * @author Yang
@@ -41,28 +52,45 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Autowired
     private CategoryService categoryService;
 
+    @Autowired
+    private IQiNiuService qiNiuService;
+
+//    @Autowired
+//    private ArticleMapper articleMapper;
+
     @Override
     public Result queryNewArticle(Integer current) {
-        String key = CACHE_ARTICLE_NEW_KEY + current;
-        String cache = stringRedisTemplate.opsForValue().get(key);
+        String cache = (String) stringRedisTemplate.opsForHash().get(CACHE_ARTICLE_NEW_KEY, current.toString());
         if (cache != null) {
-            Page<Article> page = new Page<>();
-            page.setRecords(JSONUtil.toList(cache, Article.class));
+            Page page = JSONUtil.toBean(cache, Page.class);
+            List<Article> articles = new ArrayList<>();
+            List<JSONObject> records = page.getRecords();
+            for (int i = 0; i < records.size(); i++) {
+                articles.add(JSONUtil.toBean(records.get(i), Article.class));
+            }
+            // 2.查询是否被点赞了
+            articles.forEach(article -> {
+                this.isArticleLiked(article);
+            });
+            page.setRecords(articles);
             return Result.ok(page);
         }
-        Page<Article> page = reflashNewArticle(key, current);
-        return Result.ok(page);
-    }
-
-    private Page<Article> reflashNewArticle(String key, Integer current) {
-        Page<Article> page = query().orderByDesc("created_time").page(new Page<>(current, MAX_PAGE_SIZE));
-        // 1.获取当前页数据
+        Page<Article> page = reflashNewArticle(current);
         List<Article> records = page.getRecords();
-        // 2.查询是否被点赞了
         records.forEach(article -> {
             this.isArticleLiked(article);
         });
-        stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(records, new JSONConfig().setIgnoreNullValue(false)));
+        return Result.ok(page);
+    }
+
+    private Page<Article> reflashNewArticle(Integer current) {
+        // 1.获取当前页数据
+        Page<Article> page = query().page(new Page<>(current, MAX_PAGE_SIZE));
+        List<Article> records = page.getRecords();
+        Collections.sort(records, (o1, o2) ->
+                o2.getCreatedTime().compareTo(o1.getCreatedTime())
+        );
+        stringRedisTemplate.opsForHash().put(CACHE_ARTICLE_NEW_KEY, current.toString(), JSONUtil.toJsonStr(page, new JSONConfig().setIgnoreNullValue(false)));
         return page;
     }
 
@@ -81,9 +109,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Override
     public Result createArticle(ArticleDTO articleDTO) {
         UserDTO user = UserHolder.getUser();
-        if (user == null) {
-            return Result.fail("请登录后再试");
-        }
         if (articleDTO.getArticleTitle().length() > 40) {
             return Result.fail("标题最多不允许超过40个字符");
         }
@@ -94,11 +119,52 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         String categoryName = (String) result.getData();
         Article article = new Article(null, articleDTO.getArticleTitle(),
                 articleDTO.getArticleContent(),
-                0, 0, 0, DateUtil.date(), DateUtil.date(), articleDTO.getArticleImg(),
+                0, 0, 0, DateUtil.date(), DateUtil.date(), null,
                 0, articleDTO.getArticleCategoryId(), user.getEmail(), categoryName);
         this.save(article);
-        Page<Article> page = reflashNewArticle(CACHE_ARTICLE_NEW_KEY + 1, 1);
-        return Result.ok(page);
+        Integer id = article.getArticleId();
+        stringRedisTemplate.opsForValue().set(ARTICLE_UPLOAD_IMG_ID + id, "1", ARTICLE_UPLOAD_IMG_ID_TTL, TimeUnit.MINUTES);
+        return Result.ok(id);
+    }
+
+    @Override
+    public Result uploadImg(List<MultipartFile> files, Integer id) {
+        if (files.size() > 9) {
+            return Result.fail("最多上传9张图片!");
+        }
+        for (int i = 0; i < files.size(); i++) {
+            if (!MyFileUtil.sizeCheck(files.get(i), 10)) {
+                return Result.fail("每张图片大小应为10MB以内!");
+            }
+        }
+        String s = stringRedisTemplate.opsForValue().get(ARTICLE_UPLOAD_IMG_ID + id);
+        if (StrUtil.isBlank(s)) {
+            return Result.fail("没找到对应的文章!");
+        }
+        Article article = this.getById(id);
+        String[] urls = new String[files.size()];
+        try {
+            boolean flag = true;
+            for (int i = 0; i < files.size(); i++) {
+                MultipartFile file = files.get(i);
+                String format = DateUtil.format(DateUtil.date(), "yyyy/MM/");
+                String type = FileTypeUtil.getType(file.getInputStream());
+                String string = article.getArticleId() + RandomUtil.randomString(10 - article.getArticleId().toString().length()) + "." + type;
+                String key = "article/" + format + string;
+                flag = flag && (qiNiuService.uploadFile(file.getInputStream(), key).getCode() == SUCCESS_CODE);
+                urls[i] = IMAGE_UPLOAD_DIR + key + WITH_MARK;
+            }
+            if (flag) {
+                article.setArticleImg(String.join(";",urls));
+                updateById(article);
+                return Result.ok("更新成功");
+            }
+            return Result.fail("更新失败！");
+        } catch (Exception e) {
+            return Result.fail("系统异常！");
+        } finally {
+            stringRedisTemplate.delete(CACHE_ARTICLE_NEW_KEY);
+        }
     }
 
 

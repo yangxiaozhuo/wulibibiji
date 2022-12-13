@@ -12,9 +12,9 @@ import java.util.List;
 * @createDate 2022-11-18 22:24:23
 * @Entity com.yxz.wulibibiji.entity.Article
 */
+@Mapper
 public interface ArticleMapper extends BaseMapper<Article> {
 
-//    public List
 }
 
 

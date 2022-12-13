@@ -27,7 +27,8 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/user/sentCode",
                         "/user/create",
                         "/user/login",
-                        "/article/**"
+                        "/article/**",
+                        "/**"
                 ).order(1);
         registry.addInterceptor(new RefreshTokenInterceptor(stringRedisTemplate)).addPathPatterns("/**").order(0);
     }

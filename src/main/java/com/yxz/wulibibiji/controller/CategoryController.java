@@ -23,13 +23,13 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @ApiOperation(value = "查询分类列表")
-    @GetMapping("/category")
+    @GetMapping()
     public Result getCategoryList() {
         return categoryService.getCategoryList();
     }
 
     @ApiOperation(value = "通过id查询分类")
-    @GetMapping("/category/{id}")
+    @GetMapping("/{id}")
     public Result getCategoryByid(@PathVariable(value = "id") Integer id) {
         return categoryService.getCategoryById(id);
     }

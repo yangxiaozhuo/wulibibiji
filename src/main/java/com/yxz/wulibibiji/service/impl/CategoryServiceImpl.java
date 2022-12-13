@@ -7,13 +7,16 @@ import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.entity.Category;
 import com.yxz.wulibibiji.mapper.CategoryMapper;
 import com.yxz.wulibibiji.service.CategoryService;
+import io.micrometer.core.instrument.step.StepCounter;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
 
-import static com.yxz.wulibibiji.utils.RedisConstants.ARTICLE_CATEGORY_NAME;
+import static com.yxz.wulibibiji.utils.RedisConstants.ARTICLE_CATEGORY_LIST;
+import static com.yxz.wulibibiji.utils.RedisConstants.ARTICLE_CATEGORY_MAP;
 
 /**
  * @author Yang
@@ -28,7 +31,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 
     @Override
     public Result getCategoryList() {
-        String key = ARTICLE_CATEGORY_NAME;
+        String key = ARTICLE_CATEGORY_LIST;
         String cateforyCache = stringRedisTemplate.opsForValue().get(key);
         if (!StrUtil.isBlank(cateforyCache)) {
             List<Category> categories = JSONUtil.toList(cateforyCache, Category.class);
@@ -41,21 +44,22 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 
     @Override
     public Result getCategoryById(Integer id) {
-        String key = ARTICLE_CATEGORY_NAME;
-        String cateforyCache = stringRedisTemplate.opsForValue().get(key);
-        List<Category> list;
+        String key = ARTICLE_CATEGORY_MAP;
+        String cateforyCache = (String) stringRedisTemplate.opsForHash().get(key, id.toString());
+        String res = null;
         if (StrUtil.isBlank(cateforyCache)) {
-            list = this.list();
-            stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(list));
-        } else {
-            list = JSONUtil.toList(cateforyCache, Category.class);
-        }
-        for (Category category : list) {
-            if (category.getCategoryId().equals(id)) {
-                return Result.ok(category.getCategoryName());
+            List<Category> list = this.list();
+            HashMap<String, String> map = new HashMap<>(list.size());
+            for(Category category : list) {
+                map.put(category.getCategoryId().toString(), category.getCategoryName());
             }
+            if (!map.containsKey(id.toString())) {
+                return Result.fail("没有这个分类");
+            }
+            res = map.get(id.toString());
+            stringRedisTemplate.opsForHash().putAll(key, map);
         }
-        return Result.fail("没有这个分类");
+        return Result.ok(res);
     }
 }
 

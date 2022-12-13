@@ -34,9 +34,12 @@ public class ArticleServiceTest {
 
     @Test
     public void aa() {
-        ArrayList<String> arr = new ArrayList<>();
-        arr.add("http://qiniu.yangxiaobai.top/2022/12/07/sadwedwqdqwdd");
-        arr.add("http://qiniu.yangxiaobai.top/2022/12/07/sadwedwqdqwdc");
-        System.out.println(JSONUtil.toJsonStr(arr));
+        String[] urls = new String[2];
+        urls[0] = "http://qiniu.yangxiaobai.top/2022/12/07/sadwedwqdqwdd";
+        urls[1] = "http://qiniu.yangxiaobai.top/2022/12/07/sadwedwqdqwdd";
+        String join = String.join(";", urls);
+        System.out.println(JSONUtil.toJsonStr(urls));
+        System.out.println(JSONUtil.toJsonStr(join));
+        System.out.println(join);
     }
 }
