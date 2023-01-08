@@ -1,10 +1,12 @@
 package com.yxz.wulibibiji.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.yxz.wulibibiji.entity.Article;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
-
-import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 /**
 * @author Yang
@@ -15,6 +17,7 @@ import java.util.List;
 @Mapper
 public interface ArticleMapper extends BaseMapper<Article> {
 
+    IPage<Article> listJoinInfoPages(IPage<Article> page, @Param(Constants.WRAPPER) Wrapper<Article> queryWrapper);
 }
 
 

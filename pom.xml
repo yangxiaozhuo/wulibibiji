@@ -38,6 +38,10 @@
 <!--            <version>2.6.2</version>-->
 <!--        </dependency>-->
         <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+        </dependency>
+        <dependency>
             <artifactId>lettuce-core</artifactId>
             <groupId>io.lettuce</groupId>
             <version>6.1.6.RELEASE</version>

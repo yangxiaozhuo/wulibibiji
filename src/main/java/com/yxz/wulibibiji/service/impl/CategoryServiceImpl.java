@@ -46,7 +46,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     public Result getCategoryById(Integer id) {
         String key = ARTICLE_CATEGORY_MAP;
         String cateforyCache = (String) stringRedisTemplate.opsForHash().get(key, id.toString());
-        String res = null;
+        String res = cateforyCache;
         if (StrUtil.isBlank(cateforyCache)) {
             List<Category> list = this.list();
             HashMap<String, String> map = new HashMap<>(list.size());

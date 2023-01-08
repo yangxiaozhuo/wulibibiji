@@ -4,39 +4,30 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileTypeUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONConfig;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yxz.wulibibiji.dto.ArticleDTO;
 import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.dto.UserDTO;
 import com.yxz.wulibibiji.entity.Article;
-import com.yxz.wulibibiji.entity.User;
 import com.yxz.wulibibiji.mapper.ArticleMapper;
 import com.yxz.wulibibiji.service.ArticleService;
 import com.yxz.wulibibiji.service.CategoryService;
-import com.yxz.wulibibiji.service.UserService;
 import com.yxz.wulibibiji.service.other.IQiNiuService;
 import com.yxz.wulibibiji.utils.MyFileUtil;
-import com.yxz.wulibibiji.utils.RedisConstants;
-import com.yxz.wulibibiji.utils.SystemConstants;
 import com.yxz.wulibibiji.utils.UserHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.yxz.wulibibiji.utils.RedisConstants.*;
 import static com.yxz.wulibibiji.utils.SystemConstants.*;
-import static com.yxz.wulibibiji.utils.SystemConstants.WITHOUT_MARK;
 
 /**
  * @author Yang
@@ -55,48 +46,31 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Autowired
     private IQiNiuService qiNiuService;
 
-//    @Autowired
-//    private ArticleMapper articleMapper;
+    @Autowired
+    private ArticleMapper articleMapper;
+
 
     @Override
     public Result queryNewArticle(Integer current) {
-        String cache = (String) stringRedisTemplate.opsForHash().get(CACHE_ARTICLE_NEW_KEY, current.toString());
-        if (cache != null) {
-            Page page = JSONUtil.toBean(cache, Page.class);
-            List<Article> articles = new ArrayList<>();
-            List<JSONObject> records = page.getRecords();
-            for (int i = 0; i < records.size(); i++) {
-                articles.add(JSONUtil.toBean(records.get(i), Article.class));
-            }
-            // 2.查询是否被点赞了
-            articles.forEach(article -> {
-                this.isArticleLiked(article);
-            });
-            page.setRecords(articles);
-            return Result.ok(page);
-        }
-        Page<Article> page = reflashNewArticle(current);
+        // 1.获取当前页数据
+        QueryWrapper<Article> wrapper = new QueryWrapper<>();
+        wrapper.eq("is_deleted", 0);
+        IPage<Article> page = articleMapper.listJoinInfoPages(new Page<>(current, MAX_PAGE_SIZE), wrapper);
         List<Article> records = page.getRecords();
+        records.sort((o1, o2) ->
+                o2.getCreatedTime().compareTo(o1.getCreatedTime()));
         records.forEach(article -> {
             this.isArticleLiked(article);
         });
         return Result.ok(page);
     }
 
-    private Page<Article> reflashNewArticle(Integer current) {
-        // 1.获取当前页数据
-        Page<Article> page = query().page(new Page<>(current, MAX_PAGE_SIZE));
-        List<Article> records = page.getRecords();
-        Collections.sort(records, (o1, o2) ->
-                o2.getCreatedTime().compareTo(o1.getCreatedTime())
-        );
-        stringRedisTemplate.opsForHash().put(CACHE_ARTICLE_NEW_KEY, current.toString(), JSONUtil.toJsonStr(page, new JSONConfig().setIgnoreNullValue(false)));
-        return page;
-    }
-
     @Override
     public Result queryHotArticle(Integer current) {
-        Page<Article> page = query().ge("created_time", DateUtil.lastMonth()).orderByDesc("article.article_like_count").page(new Page<>(current, MAX_PAGE_SIZE));
+//        Page<Article> page = query().ge("created_time", DateUtil.lastMonth()).orderByDesc("article.article_like_count").page(new Page<>(current, MAX_PAGE_SIZE));
+        QueryWrapper<Article> wrapper = new QueryWrapper<>();//
+        wrapper.eq("is_deleted", 0).ge("created_time", DateUtil.lastMonth()).orderByDesc("article_like_count");
+        IPage<Article> page = articleMapper.listJoinInfoPages(new Page<>(current, MAX_PAGE_SIZE), wrapper);
         // 1.获取当前页数据
         List<Article> records = page.getRecords();
         // 2.查询是否被点赞了
@@ -128,6 +102,29 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     @Override
+    public Result likeArticle(long id) {
+        //1获取登录用户
+        String userId = UserHolder.getUser().getEmail();
+        //2.判断当前用户是否已经点赞
+        String key = ARTICLE_LIKED_KEY + id;
+        Double score = stringRedisTemplate.opsForZSet().score(key, userId);
+        if (score == null) {
+            //3.如果未点赞，可以点赞
+            boolean isSuccess = update().setSql("article_like_count = article_like_count + 1").eq("article_id", id).update();
+            if (isSuccess) {
+                stringRedisTemplate.opsForZSet().add(key, userId, System.currentTimeMillis());
+            }
+        } else {
+            //已点赞 可以取消
+            boolean isSuccess = update().setSql("article_like_count = article_like_count - 1").eq("article_id", id).update();
+            if (isSuccess) {
+                stringRedisTemplate.opsForZSet().remove(key, userId.toString());
+            }
+        }
+        return Result.ok();
+    }
+
+    @Override
     public Result uploadImg(List<MultipartFile> files, Integer id) {
         if (files.size() > 9) {
             return Result.fail("最多上传9张图片!");
@@ -155,7 +152,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 urls[i] = IMAGE_UPLOAD_DIR + key + WITH_MARK;
             }
             if (flag) {
-                article.setArticleImg(String.join(";",urls));
+                article.setArticleImg(String.join(";", urls));
                 updateById(article);
                 return Result.ok("更新成功");
             }
@@ -174,7 +171,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             return;
         }
         String userId = UserHolder.getUser().getEmail();
-        String key = ARTICLE_LIKED_KEY + article.getArticleCategoryId();
+        String key = ARTICLE_LIKED_KEY + article.getArticleId();
         Double score = stringRedisTemplate.opsForZSet().score(key, userId);
         article.setLiked(score != null);
     }

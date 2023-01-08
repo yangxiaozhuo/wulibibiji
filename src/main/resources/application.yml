@@ -9,7 +9,7 @@ spring:
     # 数据源名称
     name: defaultDataSource
     # 数据库连接地址
-    url: jdbc:mysql://1.117.158.138:3306/wulibbj?serverTimezone=Asia/Shanghai&characterEncoding=UTF8&autoReconnect=true&useSSL=false
+    url: jdbc:mysql://1.117.158.138:3306/wulibbj?serverTimezone=Asia/Shanghai&characterEncoding=UTF8&autoReconnect=true&useSSL=false&allowMultiQueries=true
     # 数据库用户名&密码
     username: root
     password: 274fb9bc570f1153

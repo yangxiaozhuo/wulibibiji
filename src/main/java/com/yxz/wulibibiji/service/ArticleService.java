@@ -23,6 +23,8 @@ public interface ArticleService extends IService<Article> {
 
     Result createArticle(ArticleDTO articleDTO);
 
+    Result likeArticle(long id);
 
     Result uploadImg(List<MultipartFile> files, Integer id);
+
 }

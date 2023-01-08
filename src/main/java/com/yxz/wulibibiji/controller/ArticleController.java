@@ -5,6 +5,7 @@ import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.service.ArticleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,17 +39,27 @@ public class ArticleController {
     }
 
     @ApiImplicitParam(name = "articleDTO", value = "新增的文章对象", dataType = "ArticleDTO", required = true)
-    @ApiOperation(value = "发布文章", notes = "默认查询点赞数最多的十条数据")
+    @ApiOperation(value = "发布文章", notes = "返回文章的id，凭此id上传图片")
     @PostMapping("/create")
     public Result createArticle(@RequestBody ArticleDTO articleDTO) {
         return articleService.createArticle(articleDTO);
     }
 
-    @ApiImplicitParam(name = "articleDTO", value = "新增的文章对象", dataType = "ArticleDTO", required = true)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "files", value = "文件列表", dataType = "List<MultipartFile>", required = true),
+            @ApiImplicitParam(name = "articleId", value = "文章id", dataType = "Integer", required = true),
+    })
     @ApiOperation(value = "上传文章图片", notes = "最多上传9张图片，大小限制10m以内")
     @PostMapping("/uploadImg")
     public Result uploadImg(@RequestParam("files") List<MultipartFile> files, @RequestParam("articleId") Integer id) {
         return articleService.uploadImg(files,id);
+    }
+
+    @ApiImplicitParam(name = "articleId", value = "文章id", dataType = "Integer", required = true)
+    @ApiOperation(value = "给文章点赞或取消")
+    @PutMapping("/like/{id}")
+    public Result likeBlog(@PathVariable("id") Long id) {
+        return articleService.likeArticle(id);
     }
 
 }
