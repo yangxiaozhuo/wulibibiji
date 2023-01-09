@@ -1,5 +1,7 @@
 package com.yxz.wulibibiji.service;
 
+import com.yxz.wulibibiji.dto.FirstcommentDTO;
+import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.entity.Firstcomment;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -10,4 +12,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface FirstcommentService extends IService<Firstcomment> {
 
+    Result queryFirstComment(Integer current,Integer articleId);
+
+    Result likeFirstComment(Long id);
+
+    Result createArticle(FirstcommentDTO firstcommentDTO);
 }

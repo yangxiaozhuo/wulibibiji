@@ -54,12 +54,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     public Result queryNewArticle(Integer current) {
         // 1.获取当前页数据
         QueryWrapper<Article> wrapper = new QueryWrapper<>();
-        wrapper.eq("is_deleted", 0);
+        wrapper.eq("is_deleted", 0).orderByDesc("created_time");
         IPage<Article> page = articleMapper.listJoinInfoPages(new Page<>(current, MAX_PAGE_SIZE), wrapper);
-        List<Article> records = page.getRecords();
-        records.sort((o1, o2) ->
-                o2.getCreatedTime().compareTo(o1.getCreatedTime()));
-        records.forEach(article -> {
+        page.getRecords().forEach(article -> {
             this.isArticleLiked(article);
         });
         return Result.ok(page);
@@ -67,7 +64,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Override
     public Result queryHotArticle(Integer current) {
-//        Page<Article> page = query().ge("created_time", DateUtil.lastMonth()).orderByDesc("article.article_like_count").page(new Page<>(current, MAX_PAGE_SIZE));
         QueryWrapper<Article> wrapper = new QueryWrapper<>();//
         wrapper.eq("is_deleted", 0).ge("created_time", DateUtil.lastMonth()).orderByDesc("article_like_count");
         IPage<Article> page = articleMapper.listJoinInfoPages(new Page<>(current, MAX_PAGE_SIZE), wrapper);
@@ -118,7 +114,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             //已点赞 可以取消
             boolean isSuccess = update().setSql("article_like_count = article_like_count - 1").eq("article_id", id).update();
             if (isSuccess) {
-                stringRedisTemplate.opsForZSet().remove(key, userId.toString());
+                stringRedisTemplate.opsForZSet().remove(key, userId);
             }
         }
         return Result.ok();

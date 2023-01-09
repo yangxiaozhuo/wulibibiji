@@ -55,7 +55,7 @@ public class ArticleController {
         return articleService.uploadImg(files,id);
     }
 
-    @ApiImplicitParam(name = "articleId", value = "文章id", dataType = "Integer", required = true)
+    @ApiImplicitParam(name = "id", value = "文章id", dataType = "Integer", required = true)
     @ApiOperation(value = "给文章点赞或取消")
     @PutMapping("/like/{id}")
     public Result likeBlog(@PathVariable("id") Long id) {

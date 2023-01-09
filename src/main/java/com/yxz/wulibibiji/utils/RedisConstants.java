@@ -22,19 +22,11 @@ public class RedisConstants {
     /**
      * 用户登录token的key的过期时间，单位小时
      */
-    public static final Long LOGIN_USER_TTL = 1L;
+    public static final Long LOGIN_USER_TTL = 10000L;
     /**
      * 用户给文章点赞
      */
     public static final String ARTICLE_LIKED_KEY = "article:liked:";
-    /**
-     * 热门文章缓存key
-     */
-    public static final String CACHE_ARTICLE_HOT_KEY = "article:cache:hot:";
-    /**
-     * 热门文章缓存key的过期时间，单位分钟
-     */
-    public static final Long CACHE_ARTICLE_HOT_TTL = 30L;
     /**
      * 最新文章缓存key
      */
@@ -56,4 +48,9 @@ public class RedisConstants {
      * 文章发布时所存的id，用于上传图片使用过期时间  1分钟
      */
     public static final Long ARTICLE_UPLOAD_IMG_ID_TTL = 30L;
+
+    /**
+     * 用户给一级评论点赞
+     */
+    public static final String FIRST_COMMENT_LIKED_KEY = "first:comment:liked:";
 }

@@ -51,103 +51,117 @@ public class Firstcomment implements Serializable {
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
+    @TableField(exist = false)
+    private boolean isLiked;
+    @TableField(exist = false)
+    private String name;
+    @TableField(exist = false)
+    private String avatar;
 
-    /**
-     * 主键，评论主键
-     */
+    public Firstcomment() {
+    }
+
+    public Firstcomment(Integer firstCommentArticleId, String firstCommentUserId, String firstCommentContent) {
+        this.firstCommentArticleId = firstCommentArticleId;
+        this.firstCommentUserId = firstCommentUserId;
+        this.firstCommentContent = firstCommentContent;
+    }
+
+    public Firstcomment(Integer firstCommentId, Integer firstCommentArticleId, String firstCommentUserId, String firstCommentContent, Integer firstCommentLikeCount, Integer firstCommentCount, Date firstCommentCreatedTime, boolean isLiked, String name, String avatar) {
+        this.firstCommentId = firstCommentId;
+        this.firstCommentArticleId = firstCommentArticleId;
+        this.firstCommentUserId = firstCommentUserId;
+        this.firstCommentContent = firstCommentContent;
+        this.firstCommentLikeCount = firstCommentLikeCount;
+        this.firstCommentCount = firstCommentCount;
+        this.firstCommentCreatedTime = firstCommentCreatedTime;
+        this.isLiked = isLiked;
+        this.name = name;
+        this.avatar = avatar;
+    }
+
     public Integer getFirstCommentId() {
         return firstCommentId;
     }
 
-    /**
-     * 主键，评论主键
-     */
     public void setFirstCommentId(Integer firstCommentId) {
         this.firstCommentId = firstCommentId;
     }
 
-    /**
-     * 外键，对应article_id
-     */
     public Integer getFirstCommentArticleId() {
         return firstCommentArticleId;
     }
 
-    /**
-     * 外键，对应article_id
-     */
     public void setFirstCommentArticleId(Integer firstCommentArticleId) {
         this.firstCommentArticleId = firstCommentArticleId;
     }
 
-    /**
-     * 外键，对应user_id
-     */
     public String getFirstCommentUserId() {
         return firstCommentUserId;
     }
 
-    /**
-     * 外键，对应user_id
-     */
     public void setFirstCommentUserId(String firstCommentUserId) {
         this.firstCommentUserId = firstCommentUserId;
     }
 
-    /**
-     * 评论内容
-     */
     public String getFirstCommentContent() {
         return firstCommentContent;
     }
 
-    /**
-     * 评论内容
-     */
     public void setFirstCommentContent(String firstCommentContent) {
         this.firstCommentContent = firstCommentContent;
     }
 
-    /**
-     * 评论点赞数
-     */
     public Integer getFirstCommentLikeCount() {
         return firstCommentLikeCount;
     }
 
-    /**
-     * 评论点赞数
-     */
     public void setFirstCommentLikeCount(Integer firstCommentLikeCount) {
         this.firstCommentLikeCount = firstCommentLikeCount;
     }
 
-    /**
-     * 评论的评论数
-     */
     public Integer getFirstCommentCount() {
         return firstCommentCount;
     }
 
-    /**
-     * 评论的评论数
-     */
     public void setFirstCommentCount(Integer firstCommentCount) {
         this.firstCommentCount = firstCommentCount;
     }
 
-    /**
-     * 评论的创建时间
-     */
     public Date getFirstCommentCreatedTime() {
         return firstCommentCreatedTime;
     }
 
-    /**
-     * 评论的创建时间
-     */
     public void setFirstCommentCreatedTime(Date firstCommentCreatedTime) {
         this.firstCommentCreatedTime = firstCommentCreatedTime;
+    }
+
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public boolean isLiked() {
+        return isLiked;
+    }
+
+    public void setLiked(boolean liked) {
+        isLiked = liked;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
     @Override

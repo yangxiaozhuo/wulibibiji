@@ -19,4 +19,10 @@
         first_comment_content,first_comment_like_count,first_comment_count,
         first_comment_created_time
     </sql>
+
+    <select id="listJoinInfoPages" resultType="com.yxz.wulibibiji.entity.Firstcomment">
+                SELECT
+                firstComment.*, nickname as `name`, avatar
+                 FROM `firstComment` LEFT JOIN `user` ON user.user_id=firstComment.first_comment_user_id  ${ew.customSqlSegment}
+    </select>
 </mapper>
