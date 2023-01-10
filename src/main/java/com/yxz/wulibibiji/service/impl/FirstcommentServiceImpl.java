@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yxz.wulibibiji.dto.FirstcommentDTO;
 import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.entity.Firstcomment;
+import com.yxz.wulibibiji.mapper.ArticleMapper;
+import com.yxz.wulibibiji.service.ArticleService;
 import com.yxz.wulibibiji.service.FirstcommentService;
 import com.yxz.wulibibiji.mapper.FirstcommentMapper;
 import com.yxz.wulibibiji.utils.SystemConstants;
@@ -37,19 +39,33 @@ public class FirstcommentServiceImpl extends ServiceImpl<FirstcommentMapper, Fir
     @Autowired
     private FirstcommentMapper firstcommentMapper;
 
+    @Autowired
+    private ArticleService articleService;
+
     @Override
-    public Result queryFirstComment(Integer current, Integer articleId) {
+    public Result queryNewFirstComment(Integer current, Integer articleId) {
         QueryWrapper<Firstcomment> wrapper = new QueryWrapper<>();
         wrapper.eq("first_comment_article_id", articleId).orderByAsc("first_comment_created_time");
         IPage<Firstcomment> firstCommentIPage = firstcommentMapper.listJoinInfoPages(new Page<>(current, SystemConstants.MAX_PAGE_SIZE), wrapper);
-        firstCommentIPage.getRecords().forEach(article -> {
-            this.isFirstCommentLiked(article);
+        firstCommentIPage.getRecords().forEach(firstcomment -> {
+            this.isFirstCommentLiked(firstcomment);
         });
         return Result.ok(firstCommentIPage);
     }
 
     @Override
-    public Result likeFirstComment(Long id) {
+    public Result queryHotFirstComment(Integer current, Integer articleId) {
+        QueryWrapper<Firstcomment> wrapper = new QueryWrapper<>();
+        wrapper.eq("first_comment_article_id", articleId).orderByDesc("first_comment_like_count");
+        IPage<Firstcomment> firstCommentIPage = firstcommentMapper.listJoinInfoPages(new Page<>(current, SystemConstants.MAX_PAGE_SIZE), wrapper);
+        firstCommentIPage.getRecords().forEach(firstcomment -> {
+            this.isFirstCommentLiked(firstcomment);
+        });
+        return Result.ok(firstCommentIPage);
+    }
+
+    @Override
+    public Result likeFirstComment(long id) {
         //1获取登录用户
         String userId = UserHolder.getUser().getEmail();
         //2.判断当前用户是否已经点赞
@@ -72,14 +88,17 @@ public class FirstcommentServiceImpl extends ServiceImpl<FirstcommentMapper, Fir
     }
 
     @Override
-    public Result createArticle(FirstcommentDTO firstcommentDTO) {
+    public Result createFirstComment(FirstcommentDTO firstcommentDTO) {
         Firstcomment firstcomment = new Firstcomment(firstcommentDTO.getFirstCommentArticleId(),
                 UserHolder.getUser().getEmail(),
                 firstcommentDTO.getFirstCommentContent()
         );
         firstcomment.setFirstCommentCreatedTime(DateUtil.date());
         boolean save = this.save(firstcomment);
-        if (save) {
+        if (save && articleService.update().
+                setSql("article_comment_count = article_comment_count + 1").
+                eq("article_id", firstcommentDTO.getFirstCommentArticleId()).
+                update()) {
             return Result.ok();
         } else {
             return Result.fail("系统错误");

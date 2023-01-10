@@ -53,4 +53,9 @@ public class RedisConstants {
      * 用户给一级评论点赞
      */
     public static final String FIRST_COMMENT_LIKED_KEY = "first:comment:liked:";
+
+    /**
+     * 用户给二级评论点赞
+     */
+    public static final String SON_COMMENT_LIKED_KEY = "son:comment:liked:";
 }

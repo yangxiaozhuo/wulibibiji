@@ -1,5 +1,7 @@
 package com.yxz.wulibibiji.service;
 
+import com.yxz.wulibibiji.dto.Result;
+import com.yxz.wulibibiji.dto.SonCommentDTO;
 import com.yxz.wulibibiji.entity.Soncomment;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -10,4 +12,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface SoncommentService extends IService<Soncomment> {
 
+    Result querySonComment(Integer current, Integer firstCommentId);
+
+    Result likeSonComment(long id);
+
+    Result createSonComment(SonCommentDTO soncommentDTO);
 }

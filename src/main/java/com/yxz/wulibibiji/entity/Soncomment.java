@@ -51,6 +51,82 @@ public class Soncomment implements Serializable {
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
+    @TableField(exist = false)
+    private boolean isLiked;
+    @TableField(exist = false)
+    private String commentUserName;
+    @TableField(exist = false)
+    private String commentUserAvatar;
+    @TableField(exist = false)
+    private String commentReplyName;
+    @TableField(exist = false)
+    private String commentReplyAvatar;
+
+    public Soncomment() {
+    }
+
+    public Soncomment(Integer sonCommentParentId, String sonCommentUserId, String sonCommentReplyUserId, String sonCommentContent, Date sonCommentCreatedTime) {
+        this.sonCommentParentId = sonCommentParentId;
+        this.sonCommentUserId = sonCommentUserId;
+        this.sonCommentReplyUserId = sonCommentReplyUserId;
+        this.sonCommentContent = sonCommentContent;
+        this.sonCommentCreatedTime = sonCommentCreatedTime;
+    }
+
+    public Soncomment(Integer sonCommentId, Integer sonCommentParentId, String sonCommentUserId, String sonCommentReplyUserId, String sonCommentContent, Integer sonCommentLikeCount, Date sonCommentCreatedTime, boolean isLiked, String commentUserName, String commentUserAvatar, String commentReplyName, String commentReplyAvatar) {
+        this.sonCommentId = sonCommentId;
+        this.sonCommentParentId = sonCommentParentId;
+        this.sonCommentUserId = sonCommentUserId;
+        this.sonCommentReplyUserId = sonCommentReplyUserId;
+        this.sonCommentContent = sonCommentContent;
+        this.sonCommentLikeCount = sonCommentLikeCount;
+        this.sonCommentCreatedTime = sonCommentCreatedTime;
+        this.isLiked = isLiked;
+        this.commentUserName = commentUserName;
+        this.commentUserAvatar = commentUserAvatar;
+        this.commentReplyName = commentReplyName;
+        this.commentReplyAvatar = commentReplyAvatar;
+    }
+
+    public boolean isLiked() {
+        return isLiked;
+    }
+
+    public void setLiked(boolean liked) {
+        isLiked = liked;
+    }
+
+    public String getCommentUserName() {
+        return commentUserName;
+    }
+
+    public void setCommentUserName(String commentUserName) {
+        this.commentUserName = commentUserName;
+    }
+
+    public String getCommentUserAvatar() {
+        return commentUserAvatar;
+    }
+
+    public void setCommentUserAvatar(String commentUserAvatar) {
+        this.commentUserAvatar = commentUserAvatar;
+    }
+
+    public String getCommentReplyName() {
+        return commentReplyName;
+    }
+
+    public void setCommentReplyName(String commentReplyName) {
+        this.commentReplyName = commentReplyName;
+    }
+
+    public String getCommentReplyAvatar() {
+        return commentReplyAvatar;
+    }
+
+    public void setCommentReplyAvatar(String commentReplyAvatar) {
+        this.commentReplyAvatar = commentReplyAvatar;
+    }
 
     /**
      * 主键，评论主键

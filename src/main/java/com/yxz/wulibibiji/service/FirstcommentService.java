@@ -12,9 +12,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface FirstcommentService extends IService<Firstcomment> {
 
-    Result queryFirstComment(Integer current,Integer articleId);
+    Result queryNewFirstComment(Integer current,Integer articleId);
 
-    Result likeFirstComment(Long id);
+    Result queryHotFirstComment(Integer current,Integer articleId);
 
-    Result createArticle(FirstcommentDTO firstcommentDTO);
+    Result likeFirstComment(long id);
+
+    Result createFirstComment(FirstcommentDTO firstcommentDTO);
 }
