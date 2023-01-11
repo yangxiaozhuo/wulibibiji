@@ -62,6 +62,13 @@ public class ArticleController {
         return articleService.likeArticle(id);
     }
 
+    @ApiImplicitParam(name = "id", value = "文章id", dataType = "Integer", required = true)
+    @ApiOperation(value = "查询文章详细信息")
+    @GetMapping("/detail/{id}")
+    public Result detailAriticle(@PathVariable("id") Long id) {
+        return articleService.detailAriticle(id);
+    }
+
     @ApiImplicitParams({
             @ApiImplicitParam(name = "current", value = "查询的页码数", dataType = "Integer", required = false),
             @ApiImplicitParam(name = "useId", value = "用户id", dataType = "String", required = true)

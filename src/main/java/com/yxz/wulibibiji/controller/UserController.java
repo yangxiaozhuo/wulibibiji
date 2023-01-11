@@ -77,4 +77,17 @@ public class UserController {
         return userService.uploadAvatar(file, request);
     }
 
+    @ApiImplicitParam(name = "userId", value = "用户id", dataType = "String", required = true)
+    @ApiOperation(value = "通过id查用户信息", notes = "传入id（即email），返回头像地址，nickname等基本信息")
+    @GetMapping("/quary/{userId}")
+    public Result quaryUserInfo(@PathVariable("userId") String userId) {
+        return userService.quaryUserInfo(userId);
+    }
+
+    @ApiOperation(value = "退出登录", notes = "不需传入参数，代token")
+    @PutMapping("/logout")
+    public Result logout() {
+        return userService.logout();
+    }
+
 }

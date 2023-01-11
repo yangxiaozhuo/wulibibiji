@@ -28,4 +28,6 @@ public interface ArticleService extends IService<Article> {
     Result uploadImg(List<MultipartFile> files, Integer id);
 
     Result allArticle(String useId, int current);
+
+    Result detailAriticle(Long id);
 }

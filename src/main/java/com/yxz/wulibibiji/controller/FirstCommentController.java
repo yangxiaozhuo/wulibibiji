@@ -15,7 +15,7 @@ import javax.annotation.Resource;
  * @author yangxiaozhuo
  * @date 2023/01/09
  */
-@Api("一级评论相关接口")
+@Api(tags = "一级评论相关接口")
 @RestController
 @RequestMapping("/firstComment")
 public class FirstCommentController {

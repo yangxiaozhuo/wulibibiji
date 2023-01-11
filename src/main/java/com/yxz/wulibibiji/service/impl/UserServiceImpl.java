@@ -57,7 +57,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private IQiNiuService qiNiuService;
 
     @Autowired
-    private HttpSession session;
+    private HttpServletRequest request;
 
     //发送验证码
     @Override
@@ -115,8 +115,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         map.put("sex", user.getSex().toString());
         stringRedisTemplate.opsForHash().putAll(key, map);
         stringRedisTemplate.expire(key, LOGIN_USER_TTL, TimeUnit.HOURS);
-        session.setAttribute("authorization", token);
-        return Result.ok();
+//        session.setAttribute("authorization", token);
+        return Result.ok(token);
     }
 
     @Override
@@ -200,6 +200,30 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         } else {
             return Result.fail("服务器错误，请稍后再试");
         }
+    }
+
+    @Override
+    public Result quaryUserInfo(String userId) {
+        User user = query().eq("user_id", userId).one();
+        if (user == null) {
+            return Result.fail("没有此用户");
+        }
+        UserDTO userDTO = new UserDTO(user.getUserId(), user.getNickname(), user.getAvatar(), user.getSex());
+        return Result.ok(userDTO);
+    }
+
+    @Override
+    public Result logout() {
+        UserDTO user = UserHolder.getUser();
+        if (user == null) {
+            return Result.fail("请先登录");
+        }
+        //1。获取token
+        String token = request.getHeader("authorization");
+        String key = RedisConstants.LOGIN_USER_KEY + token;
+        stringRedisTemplate.delete(key);
+        return Result.ok("退出登录成功");
+
     }
 
     private Result sentEmail(String email) {

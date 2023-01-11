@@ -28,4 +28,8 @@ public interface UserService extends IService<User> {
     Result uploadAvatar(MultipartFile file, HttpServletRequest request);
 
     Result editPassword(String oldPassword, String newPassword);
+
+    Result quaryUserInfo(String userId);
+
+    Result logout();
 }

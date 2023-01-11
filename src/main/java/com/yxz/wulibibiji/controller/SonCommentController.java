@@ -15,7 +15,7 @@ import javax.annotation.Resource;
  * @author yangxiaozhuo
  * @date 2023/01/10
  */
-@Api("二级评论相关接口")
+@Api(tags = "二级评论相关接口")
 @RestController
 @RequestMapping("/sonComment")
 public class SonCommentController {

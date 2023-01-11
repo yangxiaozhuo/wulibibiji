@@ -166,6 +166,17 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         return Result.ok(page);
     }
 
+    @Override
+    public Result detailAriticle(Long id) {
+        Article article = getById(id);
+        if (article == null) {
+            return Result.fail("没有这篇文章");
+        }
+        article.setArticleViewCount(article.getArticleViewCount() + RandomUtil.randomInt(3) + 1);
+        updateById(article);
+        return Result.ok(article);
+    }
+
 
     private void isArticleLiked(Article article) {
         //1获取登录用户
