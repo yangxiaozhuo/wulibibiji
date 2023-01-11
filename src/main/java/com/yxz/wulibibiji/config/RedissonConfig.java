@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 public class RedissonConfig {
 
     @Bean
-    public RedissonClient redissonClient (){
+    public RedissonClient redissonClient() {
         Config config = new Config();
         config.useSingleServer().setAddress("redis://1.117.158.138:6379").setPassword("123321");
         return Redisson.create(config);

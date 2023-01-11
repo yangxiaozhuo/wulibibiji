@@ -1,11 +1,10 @@
 package com.yxz.wulibibiji.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
-import com.yxz.wulibibiji.entity.Firstcomment;
 import com.yxz.wulibibiji.entity.Soncomment;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
 
 /**
@@ -15,6 +14,7 @@ import org.apache.ibatis.annotations.Param;
  * @Entity com.yxz.wulibibiji.entity.Soncomment
  */
 public interface SoncommentMapper extends BaseMapper<Soncomment> {
+
     IPage<Soncomment> listJoinInfoPages(IPage<Soncomment> page, @Param(Constants.WRAPPER) Wrapper<Soncomment> queryWrapper);
 
 }

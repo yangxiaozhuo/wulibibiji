@@ -20,7 +20,7 @@ public class Knife4jConfiguration {
     @Bean(value = "dockerBean")
     public Docket dockerBean() {
         //指定使用Swagger2规范
-        Docket docket=new Docket(DocumentationType.SWAGGER_2)
+        Docket docket = new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(new ApiInfoBuilder()
                         //描述字段支持Markdown语法
                         .description("# 武理哔哔机 APIs")

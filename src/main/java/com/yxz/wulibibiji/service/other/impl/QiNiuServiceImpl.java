@@ -1,13 +1,11 @@
 package com.yxz.wulibibiji.service.other.impl;
 
-import cn.hutool.json.JSONUtil;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.service.other.IQiNiuService;
 import org.springframework.beans.factory.InitializingBean;
@@ -44,7 +42,7 @@ public class QiNiuServiceImpl implements IQiNiuService, InitializingBean {
     @Override
     public Result uploadFile(File file, String key) throws QiniuException {
         String uploadToken = getUploadToken();
-        Response response = this.uploadManager.put(file, key,uploadToken);
+        Response response = this.uploadManager.put(file, key, uploadToken);
         int retry = 0;
         //重复三次
         while (response.needRetry() && retry < 3) {
@@ -61,11 +59,11 @@ public class QiNiuServiceImpl implements IQiNiuService, InitializingBean {
     @Override
     public Result uploadFile(InputStream inputStream, String key) throws IOException {
         String uploadToken = getUploadToken();
-        Response response = this.uploadManager.put(inputStream, key,uploadToken,null,null);
+        Response response = this.uploadManager.put(inputStream, key, uploadToken, null, null);
         int retry = 0;
         //重复三次
         while (response.needRetry() && retry < 3) {
-            response = this.uploadManager.put(inputStream, key,uploadToken,null,null);
+            response = this.uploadManager.put(inputStream, key, uploadToken, null, null);
             retry++;
         }
         inputStream.close();
@@ -106,6 +104,7 @@ public class QiNiuServiceImpl implements IQiNiuService, InitializingBean {
 
     /**
      * 获取上传token
+     *
      * @return
      */
     private String getUploadToken() {

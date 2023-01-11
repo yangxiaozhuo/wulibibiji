@@ -160,6 +160,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         }
     }
 
+    @Override
+    public Result allArticle(String useId, int current) {
+        IPage<Article> page = query().eq("article_user_id", useId).orderByDesc("created_time").page(new Page<>(1, MAX_PAGE_SIZE));
+        return Result.ok(page);
+    }
+
 
     private void isArticleLiked(Article article) {
         //1获取登录用户

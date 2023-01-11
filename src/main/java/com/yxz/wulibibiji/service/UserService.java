@@ -1,20 +1,19 @@
 package com.yxz.wulibibiji.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.yxz.wulibibiji.dto.LoginFormDTO;
 import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.entity.User;
-import com.baomidou.mybatisplus.extension.service.IService;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 /**
-* @author Yang
-* @description 针对表【user】的数据库操作Service
-* @createDate 2022-11-18 22:24:23
-*/
+ * @author Yang
+ * @description 针对表【user】的数据库操作Service
+ * @createDate 2022-11-18 22:24:23
+ */
 public interface UserService extends IService<User> {
 
 

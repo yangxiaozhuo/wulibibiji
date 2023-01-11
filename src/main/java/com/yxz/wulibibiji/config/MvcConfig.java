@@ -18,6 +18,7 @@ import javax.annotation.Resource;
 public class MvcConfig implements WebMvcConfigurer {
     @Resource
     StringRedisTemplate stringRedisTemplate;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new LoginInterceptor())

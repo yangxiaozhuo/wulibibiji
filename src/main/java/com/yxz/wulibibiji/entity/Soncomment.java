@@ -4,14 +4,14 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
 import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 
  * @TableName sonComment
  */
-@TableName(value ="sonComment")
+@TableName(value = "sonComment")
 public class Soncomment implements Serializable {
     /**
      * 主键，评论主键
@@ -239,12 +239,12 @@ public class Soncomment implements Serializable {
         }
         Soncomment other = (Soncomment) that;
         return (this.getSonCommentId() == null ? other.getSonCommentId() == null : this.getSonCommentId().equals(other.getSonCommentId()))
-            && (this.getSonCommentParentId() == null ? other.getSonCommentParentId() == null : this.getSonCommentParentId().equals(other.getSonCommentParentId()))
-            && (this.getSonCommentUserId() == null ? other.getSonCommentUserId() == null : this.getSonCommentUserId().equals(other.getSonCommentUserId()))
-            && (this.getSonCommentReplyUserId() == null ? other.getSonCommentReplyUserId() == null : this.getSonCommentReplyUserId().equals(other.getSonCommentReplyUserId()))
-            && (this.getSonCommentContent() == null ? other.getSonCommentContent() == null : this.getSonCommentContent().equals(other.getSonCommentContent()))
-            && (this.getSonCommentLikeCount() == null ? other.getSonCommentLikeCount() == null : this.getSonCommentLikeCount().equals(other.getSonCommentLikeCount()))
-            && (this.getSonCommentCreatedTime() == null ? other.getSonCommentCreatedTime() == null : this.getSonCommentCreatedTime().equals(other.getSonCommentCreatedTime()));
+                && (this.getSonCommentParentId() == null ? other.getSonCommentParentId() == null : this.getSonCommentParentId().equals(other.getSonCommentParentId()))
+                && (this.getSonCommentUserId() == null ? other.getSonCommentUserId() == null : this.getSonCommentUserId().equals(other.getSonCommentUserId()))
+                && (this.getSonCommentReplyUserId() == null ? other.getSonCommentReplyUserId() == null : this.getSonCommentReplyUserId().equals(other.getSonCommentReplyUserId()))
+                && (this.getSonCommentContent() == null ? other.getSonCommentContent() == null : this.getSonCommentContent().equals(other.getSonCommentContent()))
+                && (this.getSonCommentLikeCount() == null ? other.getSonCommentLikeCount() == null : this.getSonCommentLikeCount().equals(other.getSonCommentLikeCount()))
+                && (this.getSonCommentCreatedTime() == null ? other.getSonCommentCreatedTime() == null : this.getSonCommentCreatedTime().equals(other.getSonCommentCreatedTime()));
     }
 
     @Override

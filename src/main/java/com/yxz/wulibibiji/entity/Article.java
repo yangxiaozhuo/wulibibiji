@@ -6,10 +6,9 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 
  * @TableName article
  */
-@TableName(value ="article")
+@TableName(value = "article")
 public class Article implements Serializable {
     /**
      * 文章id
@@ -326,18 +325,18 @@ public class Article implements Serializable {
         }
         Article other = (Article) that;
         return (this.getArticleId() == null ? other.getArticleId() == null : this.getArticleId().equals(other.getArticleId()))
-            && (this.getArticleTitle() == null ? other.getArticleTitle() == null : this.getArticleTitle().equals(other.getArticleTitle()))
-            && (this.getArticleContent() == null ? other.getArticleContent() == null : this.getArticleContent().equals(other.getArticleContent()))
-            && (this.getArticleViewCount() == null ? other.getArticleViewCount() == null : this.getArticleViewCount().equals(other.getArticleViewCount()))
-            && (this.getArticleLikeCount() == null ? other.getArticleLikeCount() == null : this.getArticleLikeCount().equals(other.getArticleLikeCount()))
-            && (this.getArticleCommentCount() == null ? other.getArticleCommentCount() == null : this.getArticleCommentCount().equals(other.getArticleCommentCount()))
-            && (this.getCreatedTime() == null ? other.getCreatedTime() == null : this.getCreatedTime().equals(other.getCreatedTime()))
-            && (this.getUpdateTime() == null ? other.getUpdateTime() == null : this.getUpdateTime().equals(other.getUpdateTime()))
-            && (this.getArticleImg() == null ? other.getArticleImg() == null : this.getArticleImg().equals(other.getArticleImg()))
-            && (this.getIsDeleted() == null ? other.getIsDeleted() == null : this.getIsDeleted().equals(other.getIsDeleted()))
-            && (this.getArticleCategoryId() == null ? other.getArticleCategoryId() == null : this.getArticleCategoryId().equals(other.getArticleCategoryId()))
-            && (this.getArticleUserId() == null ? other.getArticleUserId() == null : this.getArticleUserId().equals(other.getArticleUserId()))
-            && (this.getArticleCategoryName() == null ? other.getArticleCategoryName() == null : this.getArticleCategoryName().equals(other.getArticleCategoryName()));
+                && (this.getArticleTitle() == null ? other.getArticleTitle() == null : this.getArticleTitle().equals(other.getArticleTitle()))
+                && (this.getArticleContent() == null ? other.getArticleContent() == null : this.getArticleContent().equals(other.getArticleContent()))
+                && (this.getArticleViewCount() == null ? other.getArticleViewCount() == null : this.getArticleViewCount().equals(other.getArticleViewCount()))
+                && (this.getArticleLikeCount() == null ? other.getArticleLikeCount() == null : this.getArticleLikeCount().equals(other.getArticleLikeCount()))
+                && (this.getArticleCommentCount() == null ? other.getArticleCommentCount() == null : this.getArticleCommentCount().equals(other.getArticleCommentCount()))
+                && (this.getCreatedTime() == null ? other.getCreatedTime() == null : this.getCreatedTime().equals(other.getCreatedTime()))
+                && (this.getUpdateTime() == null ? other.getUpdateTime() == null : this.getUpdateTime().equals(other.getUpdateTime()))
+                && (this.getArticleImg() == null ? other.getArticleImg() == null : this.getArticleImg().equals(other.getArticleImg()))
+                && (this.getIsDeleted() == null ? other.getIsDeleted() == null : this.getIsDeleted().equals(other.getIsDeleted()))
+                && (this.getArticleCategoryId() == null ? other.getArticleCategoryId() == null : this.getArticleCategoryId().equals(other.getArticleCategoryId()))
+                && (this.getArticleUserId() == null ? other.getArticleUserId() == null : this.getArticleUserId().equals(other.getArticleUserId()))
+                && (this.getArticleCategoryName() == null ? other.getArticleCategoryName() == null : this.getArticleCategoryName().equals(other.getArticleCategoryName()));
     }
 
     @Override

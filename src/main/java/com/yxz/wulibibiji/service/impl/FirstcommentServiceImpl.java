@@ -8,21 +8,17 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yxz.wulibibiji.dto.FirstcommentDTO;
 import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.entity.Firstcomment;
-import com.yxz.wulibibiji.mapper.ArticleMapper;
+import com.yxz.wulibibiji.mapper.FirstcommentMapper;
 import com.yxz.wulibibiji.service.ArticleService;
 import com.yxz.wulibibiji.service.FirstcommentService;
-import com.yxz.wulibibiji.mapper.FirstcommentMapper;
 import com.yxz.wulibibiji.utils.SystemConstants;
 import com.yxz.wulibibiji.utils.UserHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.util.List;
 
-import static com.yxz.wulibibiji.utils.RedisConstants.ARTICLE_LIKED_KEY;
 import static com.yxz.wulibibiji.utils.RedisConstants.FIRST_COMMENT_LIKED_KEY;
 
 /**

@@ -1,8 +1,6 @@
 package com.yxz.wulibibiji.utils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.mybatis.logging.Logger;
-import org.mybatis.logging.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -26,7 +24,7 @@ public class MailClient {
     @Value("${spring.mail.username}")//将yml的属性注入到from
     private String from;
 
-    public void sendMail(String to,String subject,String content){
+    public void sendMail(String to, String subject, String content) {
         try {
             //MimeMessage用于封装邮件相关信息
             MimeMessage message = javaMailSender.createMimeMessage();
@@ -36,11 +34,11 @@ public class MailClient {
             helper.setTo(to);
             helper.setSubject(subject);
             //支持HTML文本
-            helper.setText(content,true);
+            helper.setText(content, true);
             //发送邮件都有JavaMailSender来做
             javaMailSender.send(helper.getMimeMessage());
-        }catch (MessagingException e){
-            log.error("发送邮件失败："+e.getMessage());
+        } catch (MessagingException e) {
+            log.error("发送邮件失败：" + e.getMessage());
         }
     }
 }

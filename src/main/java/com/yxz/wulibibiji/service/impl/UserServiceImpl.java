@@ -15,9 +15,11 @@ import com.yxz.wulibibiji.entity.User;
 import com.yxz.wulibibiji.mapper.UserMapper;
 import com.yxz.wulibibiji.service.UserService;
 import com.yxz.wulibibiji.service.other.IQiNiuService;
-import com.yxz.wulibibiji.utils.*;
+import com.yxz.wulibibiji.utils.MailClient;
+import com.yxz.wulibibiji.utils.MyFileUtil;
+import com.yxz.wulibibiji.utils.RedisConstants;
+import com.yxz.wulibibiji.utils.UserHolder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,7 +29,6 @@ import org.thymeleaf.context.Context;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -146,7 +147,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!MyFileUtil.isImg(file)) {
             return Result.fail("只支持jpg、png、webp、jpeg四种图片格式");
         }
-        if (!MyFileUtil.sizeCheck(file,1)) {
+        if (!MyFileUtil.sizeCheck(file, 1)) {
             return Result.fail("只支持上传大小为1MB以内的图片");
         }
         try {

@@ -52,14 +52,23 @@ public class ArticleController {
     @ApiOperation(value = "上传文章图片", notes = "最多上传9张图片，大小限制10m以内")
     @PostMapping("/uploadImg")
     public Result uploadImg(@RequestParam("files") List<MultipartFile> files, @RequestParam("articleId") Integer id) {
-        return articleService.uploadImg(files,id);
+        return articleService.uploadImg(files, id);
     }
 
     @ApiImplicitParam(name = "id", value = "文章id", dataType = "Integer", required = true)
     @ApiOperation(value = "给文章点赞或取消")
     @PutMapping("/like/{id}")
-    public Result likeBlog(@PathVariable("id") Long id) {
+    public Result likeAriticle(@PathVariable("id") Long id) {
         return articleService.likeArticle(id);
     }
 
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "current", value = "查询的页码数", dataType = "Integer", required = false),
+            @ApiImplicitParam(name = "useId", value = "用户id", dataType = "String", required = true)
+    })
+    @ApiOperation(value = "查询某用户的所有文章")
+    @GetMapping("/all")
+    public Result allArticle(@RequestParam("useId") String useId, @RequestParam("current") Integer current) {
+        return articleService.allArticle(useId, current);
+    }
 }

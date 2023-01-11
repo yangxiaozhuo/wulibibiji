@@ -1,9 +1,9 @@
 package com.yxz.wulibibiji.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.yxz.wulibibiji.dto.ArticleDTO;
 import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.entity.Article;
-import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,4 +27,5 @@ public interface ArticleService extends IService<Article> {
 
     Result uploadImg(List<MultipartFile> files, Integer id);
 
+    Result allArticle(String useId, int current);
 }

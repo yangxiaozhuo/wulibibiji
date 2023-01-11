@@ -24,7 +24,7 @@ public class ArticleDTO {
     public ArticleDTO() {
     }
 
-    public ArticleDTO(String articleTitle, String articleContent,  Integer articleCategoryId) {
+    public ArticleDTO(String articleTitle, String articleContent, Integer articleCategoryId) {
         this.articleTitle = articleTitle;
         this.articleContent = articleContent;
         this.articleCategoryId = articleCategoryId;

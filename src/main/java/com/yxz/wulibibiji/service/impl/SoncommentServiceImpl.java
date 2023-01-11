@@ -7,12 +7,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.dto.SonCommentDTO;
-import com.yxz.wulibibiji.entity.Firstcomment;
 import com.yxz.wulibibiji.entity.Soncomment;
-import com.yxz.wulibibiji.mapper.FirstcommentMapper;
+import com.yxz.wulibibiji.mapper.SoncommentMapper;
 import com.yxz.wulibibiji.service.FirstcommentService;
 import com.yxz.wulibibiji.service.SoncommentService;
-import com.yxz.wulibibiji.mapper.SoncommentMapper;
 import com.yxz.wulibibiji.utils.SystemConstants;
 import com.yxz.wulibibiji.utils.UserHolder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,16 +19,15 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
-import static com.yxz.wulibibiji.utils.RedisConstants.FIRST_COMMENT_LIKED_KEY;
 import static com.yxz.wulibibiji.utils.RedisConstants.SON_COMMENT_LIKED_KEY;
 
 /**
-* @author Yang
-* @description 针对表【sonComment】的数据库操作Service实现
-* @createDate 2022-12-07 11:45:17
-*/
+ * @author Yang
+ * @description 针对表【sonComment】的数据库操作Service实现
+ * @createDate 2022-12-07 11:45:17
+ */
 @Service
-public class SoncommentServiceImpl extends ServiceImpl<SoncommentMapper, Soncomment> implements SoncommentService{
+public class SoncommentServiceImpl extends ServiceImpl<SoncommentMapper, Soncomment> implements SoncommentService {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 

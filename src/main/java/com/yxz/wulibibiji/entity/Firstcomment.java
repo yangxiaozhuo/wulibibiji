@@ -4,14 +4,14 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
 import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 
  * @TableName firstComment
  */
-@TableName(value ="firstComment")
+@TableName(value = "firstComment")
 public class Firstcomment implements Serializable {
     /**
      * 主键，评论主键
@@ -177,12 +177,12 @@ public class Firstcomment implements Serializable {
         }
         Firstcomment other = (Firstcomment) that;
         return (this.getFirstCommentId() == null ? other.getFirstCommentId() == null : this.getFirstCommentId().equals(other.getFirstCommentId()))
-            && (this.getFirstCommentArticleId() == null ? other.getFirstCommentArticleId() == null : this.getFirstCommentArticleId().equals(other.getFirstCommentArticleId()))
-            && (this.getFirstCommentUserId() == null ? other.getFirstCommentUserId() == null : this.getFirstCommentUserId().equals(other.getFirstCommentUserId()))
-            && (this.getFirstCommentContent() == null ? other.getFirstCommentContent() == null : this.getFirstCommentContent().equals(other.getFirstCommentContent()))
-            && (this.getFirstCommentLikeCount() == null ? other.getFirstCommentLikeCount() == null : this.getFirstCommentLikeCount().equals(other.getFirstCommentLikeCount()))
-            && (this.getFirstCommentCount() == null ? other.getFirstCommentCount() == null : this.getFirstCommentCount().equals(other.getFirstCommentCount()))
-            && (this.getFirstCommentCreatedTime() == null ? other.getFirstCommentCreatedTime() == null : this.getFirstCommentCreatedTime().equals(other.getFirstCommentCreatedTime()));
+                && (this.getFirstCommentArticleId() == null ? other.getFirstCommentArticleId() == null : this.getFirstCommentArticleId().equals(other.getFirstCommentArticleId()))
+                && (this.getFirstCommentUserId() == null ? other.getFirstCommentUserId() == null : this.getFirstCommentUserId().equals(other.getFirstCommentUserId()))
+                && (this.getFirstCommentContent() == null ? other.getFirstCommentContent() == null : this.getFirstCommentContent().equals(other.getFirstCommentContent()))
+                && (this.getFirstCommentLikeCount() == null ? other.getFirstCommentLikeCount() == null : this.getFirstCommentLikeCount().equals(other.getFirstCommentLikeCount()))
+                && (this.getFirstCommentCount() == null ? other.getFirstCommentCount() == null : this.getFirstCommentCount().equals(other.getFirstCommentCount()))
+                && (this.getFirstCommentCreatedTime() == null ? other.getFirstCommentCreatedTime() == null : this.getFirstCommentCreatedTime().equals(other.getFirstCommentCreatedTime()));
     }
 
     @Override

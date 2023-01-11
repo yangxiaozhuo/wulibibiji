@@ -2,14 +2,11 @@ package com.yxz.wulibibiji.controller;
 
 import com.yxz.wulibibiji.dto.FirstcommentDTO;
 import com.yxz.wulibibiji.dto.Result;
-import com.yxz.wulibibiji.entity.Firstcomment;
-import com.yxz.wulibibiji.service.ArticleService;
 import com.yxz.wulibibiji.service.FirstcommentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.models.auth.In;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;

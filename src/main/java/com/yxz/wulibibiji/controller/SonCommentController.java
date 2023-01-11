@@ -1,9 +1,7 @@
 package com.yxz.wulibibiji.controller;
 
-import com.yxz.wulibibiji.dto.FirstcommentDTO;
 import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.dto.SonCommentDTO;
-import com.yxz.wulibibiji.entity.Soncomment;
 import com.yxz.wulibibiji.service.SoncommentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;

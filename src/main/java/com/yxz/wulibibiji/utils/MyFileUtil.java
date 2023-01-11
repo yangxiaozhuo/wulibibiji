@@ -1,14 +1,11 @@
 package com.yxz.wulibibiji.utils;
 
 import cn.hutool.core.io.FileTypeUtil;
-import cn.hutool.core.io.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.HashSet;
 
 /**
@@ -36,7 +33,8 @@ public class MyFileUtil extends FileTypeUtil {
         String type = getType(inputStream);
         return imgset.contains(type);
     }
-    public static boolean isImg(MultipartFile file){
+
+    public static boolean isImg(MultipartFile file) {
         try {
             return isImg(file.getInputStream());
         } catch (Exception e) {
@@ -45,12 +43,13 @@ public class MyFileUtil extends FileTypeUtil {
         return false;
     }
 
-    public static boolean sizeCheck(File file, int mb){
+    public static boolean sizeCheck(File file, int mb) {
         double length = file.length();
         double size = length / 1024 / 1024;
         return size <= mb;
     }
-    public static boolean sizeCheck(MultipartFile file, int mb){
+
+    public static boolean sizeCheck(MultipartFile file, int mb) {
         double size = Double.parseDouble(String.valueOf(file.getSize())) / 1024 / 1024;
         return size <= mb;
     }

@@ -7,7 +7,6 @@ import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.entity.Category;
 import com.yxz.wulibibiji.mapper.CategoryMapper;
 import com.yxz.wulibibiji.service.CategoryService;
-import io.micrometer.core.instrument.step.StepCounter;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -50,7 +49,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         if (StrUtil.isBlank(cateforyCache)) {
             List<Category> list = this.list();
             HashMap<String, String> map = new HashMap<>(list.size());
-            for(Category category : list) {
+            for (Category category : list) {
                 map.put(category.getCategoryId().toString(), category.getCategoryName());
             }
             if (!map.containsKey(id.toString())) {
