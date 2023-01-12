@@ -58,4 +58,14 @@ public class RedisConstants {
      * 用户给二级评论点赞
      */
     public static final String SON_COMMENT_LIKED_KEY = "son:comment:liked:";
+
+    /**
+     * 系统日访问量
+     */
+    public static final String SYSTEM_DAY_VISIT = "system:day:visit:";
+
+    /**
+     * 系统总访问量
+     */
+    public static final String SYSTEM_ALL_VISIT = "system:all:visit";
 }

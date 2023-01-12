@@ -42,14 +42,11 @@ public class UserController {
         return userService.sentCode(email);
     }
 
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "loginForm", value = "用户登录对象", dataType = "LoginFormDTO", required = true),
-            @ApiImplicitParam(name = "session", value = "session对象", dataType = "HttpSession", required = true)
-    })
+    @ApiImplicitParam(name = "loginForm", value = "用户登录对象", dataType = "LoginFormDTO", required = true)
     @ApiOperation(value = "用户登录")
     @PostMapping("/login")
-    public Result login(@RequestBody LoginFormDTO loginForm, HttpSession session) {
-        return userService.login(loginForm, session);
+    public Result login(@RequestBody LoginFormDTO loginForm) {
+        return userService.login(loginForm);
     }
 
     @ApiImplicitParam(name = "User", value = "用户User对象", dataType = "User", required = false)

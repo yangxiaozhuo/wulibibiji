@@ -21,7 +21,7 @@ public interface UserService extends IService<User> {
 
     Result create(LoginFormDTO loginFormDTO);
 
-    Result login(LoginFormDTO loginForm, HttpSession session);
+    Result login(LoginFormDTO loginForm);
 
     Result edit(User user);
 

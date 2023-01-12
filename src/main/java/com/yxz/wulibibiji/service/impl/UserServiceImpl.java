@@ -95,7 +95,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public Result login(LoginFormDTO loginForm, HttpSession session) {
+    public Result login(LoginFormDTO loginForm) {
         //1.验证邮箱 2.验证账号密码 3.不存在或不一致 报错
         String email = loginForm.getEmail();
         String password = loginForm.getPassword();
