@@ -68,3 +68,6 @@ qiniu:
   Bucket: wulibibiji
   cdn:
     prefix: qiniu.yangxiaobai.top
+
+sensitive:
+  filename: dict.txt

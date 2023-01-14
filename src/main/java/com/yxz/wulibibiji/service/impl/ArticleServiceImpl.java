@@ -4,6 +4,8 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileTypeUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.dfa.FoundWord;
+import cn.hutool.dfa.SensitiveUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -81,6 +83,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         UserDTO user = UserHolder.getUser();
         if (articleDTO.getArticleTitle().length() > 40) {
             return Result.fail("标题最多不允许超过40个字符");
+        }
+        //处理敏感词
+        List<FoundWord> foundAllSensitive = SensitiveUtil.getFoundAllSensitive(articleDTO.getArticleTitle());
+        if (!foundAllSensitive.isEmpty()) {
+            return Result.fail("标题中含有以下违禁词 " + foundAllSensitive.toString() + " ,请修改后发布");
+        }
+        foundAllSensitive = SensitiveUtil.getFoundAllSensitive(articleDTO.getArticleContent());
+        if (!foundAllSensitive.isEmpty()) {
+            return Result.fail("正文中中含有以下违禁词 " + foundAllSensitive.toString() + " ,请修改后发布");
         }
         Result result = categoryService.getCategoryById(articleDTO.getArticleCategoryId());
         if (result.getCode() != SUCCESS_CODE) {

@@ -1,5 +1,6 @@
 package com.yxz.wulibibiji.service;
 
+import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.entity.Uvcount;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -10,4 +11,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface UvcountService extends IService<Uvcount> {
 
+    Result getDay();
+
+    Result getAll();
 }

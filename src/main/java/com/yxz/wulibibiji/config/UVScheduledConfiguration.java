@@ -1,6 +1,5 @@
 package com.yxz.wulibibiji.config;
 
-import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.yxz.wulibibiji.entity.Uvcount;
@@ -31,7 +30,7 @@ public class UVScheduledConfiguration {
     //添加定时任务  每天的23点  新增第二天的redis的key值
     @Scheduled(cron = "0 0 23 * * ?")
     private void flashRedisKey() {
-        String tomorrow = DateUtil.format(DateUtil.tomorrow(), "yyyy-mm-dd");
+        String tomorrow = DateUtil.format(DateUtil.tomorrow(), "yyyy-MM-dd");
         String key = SYSTEM_DAY_VISIT + tomorrow;
         stringRedisTemplate.opsForValue().set(key, "0");
     }

@@ -1,6 +1,8 @@
 package com.yxz.wulibibiji.service.impl;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.dfa.FoundWord;
+import cn.hutool.dfa.SensitiveUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -18,6 +20,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+
+import java.util.List;
 
 import static com.yxz.wulibibiji.utils.RedisConstants.SON_COMMENT_LIKED_KEY;
 
@@ -73,6 +77,10 @@ public class SoncommentServiceImpl extends ServiceImpl<SoncommentMapper, Soncomm
 
     @Override
     public Result createSonComment(SonCommentDTO soncommentDTO) {
+        List<FoundWord> foundAllSensitive = SensitiveUtil.getFoundAllSensitive(soncommentDTO.getSonCommentContent());
+        if (!foundAllSensitive.isEmpty()) {
+            return Result.fail("评论内容中含有以下违禁词 " + foundAllSensitive.toString() + " ,请修改后发布");
+        }
         Soncomment soncomment = new Soncomment(soncommentDTO.getSonCommentParentId(),
                 UserHolder.getUser().getEmail(),
                 soncommentDTO.getSonCommentReplyId(),

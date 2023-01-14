@@ -1,6 +1,8 @@
 package com.yxz.wulibibiji.service.impl;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.dfa.FoundWord;
+import cn.hutool.dfa.SensitiveUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -18,6 +20,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+
+import java.util.List;
 
 import static com.yxz.wulibibiji.utils.RedisConstants.FIRST_COMMENT_LIKED_KEY;
 
@@ -85,6 +89,10 @@ public class FirstcommentServiceImpl extends ServiceImpl<FirstcommentMapper, Fir
 
     @Override
     public Result createFirstComment(FirstcommentDTO firstcommentDTO) {
+        List<FoundWord> foundAllSensitive = SensitiveUtil.getFoundAllSensitive(firstcommentDTO.getFirstCommentContent());
+        if (!foundAllSensitive.isEmpty()) {
+            return Result.fail("评论内容中含有以下违禁词 " + foundAllSensitive.toString() + " ,请修改后发布");
+        }
         Firstcomment firstcomment = new Firstcomment(firstcommentDTO.getFirstCommentArticleId(),
                 UserHolder.getUser().getEmail(),
                 firstcommentDTO.getFirstCommentContent()
