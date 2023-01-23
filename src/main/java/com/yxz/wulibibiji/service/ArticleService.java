@@ -29,5 +29,5 @@ public interface ArticleService extends IService<Article> {
 
     Result allArticle(String useId, int current);
 
-    Result detailAriticle(Long id);
+    Result detailArticle(Long id);
 }

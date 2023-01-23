@@ -5,6 +5,8 @@ import cn.hutool.dfa.SensitiveUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -14,8 +16,10 @@ import java.util.List;
 @Configuration
 public class SensitiveConfig {
     @Value("${sensitive.filename}")
-    private void flashRedisKey(String filename) {
-        List<String> list = FileUtil.readUtf8Lines("static/" + filename);
+    private void flashRedisKey(String filename) throws IOException {
+        ClassLoader classLoader = this.getClass().getClassLoader();
+        URL resource = classLoader.getResource("static/" + filename);
+        List<String> list = FileUtil.readUtf8Lines(resource);
         SensitiveUtil.init(list);
     }
 }

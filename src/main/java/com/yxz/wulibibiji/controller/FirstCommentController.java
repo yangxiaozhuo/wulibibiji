@@ -28,7 +28,7 @@ public class FirstCommentController {
     })
     @ApiOperation(value = "根据发布时间查询文章评论", notes = "默认查询最新的十条数据")
     @GetMapping("/getNewList")
-    public Result queryNewArticle(@RequestParam(value = "current", defaultValue = "1") Integer current,
+    public Result queryNewComment(@RequestParam(value = "current", defaultValue = "1") Integer current,
                                   @RequestParam(value = "articleId") Integer articleId) {
         return firstcommentService.queryNewFirstComment(current, articleId);
     }
@@ -39,7 +39,7 @@ public class FirstCommentController {
     })
     @ApiOperation(value = "根据点赞数查询文章评论", notes = "默认查询最热的十条数据")
     @GetMapping("/getHotList")
-    public Result queryHotArticle(@RequestParam(value = "current", defaultValue = "1") Integer current,
+    public Result queryHotComment(@RequestParam(value = "current", defaultValue = "1") Integer current,
                                   @RequestParam(value = "articleId") Integer articleId) {
         return firstcommentService.queryHotFirstComment(current, articleId);
     }
@@ -54,7 +54,7 @@ public class FirstCommentController {
     @ApiImplicitParam(name = "id", value = "一级评论id", dataType = "Integer", required = true)
     @ApiOperation(value = "给评论点赞或取消")
     @PutMapping("/like/{id}")
-    public Result likeBlog(@PathVariable("id") Long id) {
+    public Result likeFirstComment(@PathVariable("id") Long id) {
         return firstcommentService.likeFirstComment(id);
     }
 }

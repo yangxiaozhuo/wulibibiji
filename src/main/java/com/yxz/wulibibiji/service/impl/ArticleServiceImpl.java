@@ -6,11 +6,14 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.dfa.FoundWord;
 import cn.hutool.dfa.SensitiveUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.yxz.wulibibiji.Event.EventProducer;
 import com.yxz.wulibibiji.dto.ArticleDTO;
+import com.yxz.wulibibiji.dto.Event;
 import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.dto.UserDTO;
 import com.yxz.wulibibiji.entity.Article;
@@ -20,6 +23,7 @@ import com.yxz.wulibibiji.service.CategoryService;
 import com.yxz.wulibibiji.service.other.IQiNiuService;
 import com.yxz.wulibibiji.utils.MyFileUtil;
 import com.yxz.wulibibiji.utils.UserHolder;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -28,6 +32,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.yxz.wulibibiji.utils.RabbitConstants.TOPIC_COMMENT;
+import static com.yxz.wulibibiji.utils.RabbitConstants.TOPIC_LIKE;
 import static com.yxz.wulibibiji.utils.RedisConstants.*;
 import static com.yxz.wulibibiji.utils.SystemConstants.*;
 
@@ -50,6 +56,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Autowired
     private ArticleMapper articleMapper;
+
+    @Autowired
+    private EventProducer eventProducer;
 
 
     @Override
@@ -121,6 +130,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             if (isSuccess) {
                 stringRedisTemplate.opsForZSet().add(key, userId, System.currentTimeMillis());
             }
+            sentMq(id + "", getById(id).getArticleUserId());
         } else {
             //已点赞 可以取消
             boolean isSuccess = update().setSql("article_like_count = article_like_count - 1").eq("article_id", id).update();
@@ -129,6 +139,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             }
         }
         return Result.ok();
+    }
+
+    public void sentMq(String articleid, String userid) {
+        Event event = new Event(TOPIC_LIKE, UserHolder.getUser().getEmail(), "article", articleid, userid);
+        eventProducer.fireEvent(event);
     }
 
     @Override
@@ -173,20 +188,25 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Override
     public Result allArticle(String useId, int current) {
-        IPage<Article> page = query().eq("article_user_id", useId).orderByDesc("created_time").page(new Page<>(1, MAX_PAGE_SIZE));
+        IPage<Article> page = query().eq("article_user_id", useId).orderByDesc("created_time").page(new Page<>(current, MAX_PAGE_SIZE));
+        page.getRecords().forEach(article -> isArticleLiked(article));
         return Result.ok(page);
     }
 
     @Override
-    public Result detailAriticle(Long id) {
-        Article article = getById(id);
+    public Result detailArticle(Long id) {
+        QueryWrapper<Article> wrapper = new QueryWrapper<>();
+        wrapper.eq("article_id", id);
+        Article article = articleMapper.queryDetail(wrapper);
         if (article == null) {
             return Result.fail("没有这篇文章");
         }
         article.setArticleViewCount(article.getArticleViewCount() + RandomUtil.randomInt(3) + 1);
         updateById(article);
+        isArticleLiked(article);
         return Result.ok(article);
     }
+
 
 
     private void isArticleLiked(Article article) {

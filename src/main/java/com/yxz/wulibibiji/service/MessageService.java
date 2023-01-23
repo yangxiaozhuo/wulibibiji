@@ -5,15 +5,15 @@ import com.yxz.wulibibiji.entity.Message;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
-* @author Yang
-* @description 针对表【message】的数据库操作Service
-* @createDate 2023-01-14 00:18:19
-*/
+ * @author Yang
+ * @description 针对表【message】的数据库操作Service
+ * @createDate 2023-01-14 00:18:19
+ */
 public interface MessageService extends IService<Message> {
 
     Result getMessage(String userId, Integer current);
 
-    Result unreadMessage();
+    Result unreadAllMessage();
 
     Result withdrawMessage(Integer id);
 
@@ -22,4 +22,14 @@ public interface MessageService extends IService<Message> {
     Result getFirstList(Integer current);
 
     Result getUnreadCount(String userId);
+
+    Result unreadPrivateMessage();
+
+    Result unreadSystemMessage();
+
+    Result getLatestNotice(String topic);
+
+    Result getAllNotice(String topic,Integer current);
+
+    Result getNoticeUnreadCount(String topic);
 }

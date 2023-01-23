@@ -29,7 +29,7 @@ public class FollowController {
     })
     @ApiOperation(value = "关注或者取关目标用户", notes = "如果是取消关注，isFollow参数传入false，如果是关注，isFollow传入true")
     @PutMapping("/{userId}/{isFollow}")
-    public Result likeBlog(@PathVariable("userId") String userId, @PathVariable("isFollow") boolean isFollow) {
+    public Result followUser(@PathVariable("userId") String userId, @PathVariable("isFollow") boolean isFollow) {
         return followService.follow(userId, isFollow);
     }
 
@@ -37,7 +37,7 @@ public class FollowController {
     @ApiImplicitParam(name = "userId", value = "一级评论id", dataType = "Integer", required = true)
     @ApiOperation(value = "查询是否已经关注对方用户")
     @GetMapping("/or/not/{userId}")
-    public Result likeBlog(@PathVariable("userId") String userId) {
+    public Result isFollowed(@PathVariable("userId") String userId) {
         return followService.isFollowed(userId);
     }
 }

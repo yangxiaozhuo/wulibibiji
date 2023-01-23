@@ -3,14 +3,14 @@ package com.yxz.wulibibiji.service.impl;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.dfa.SensitiveUtil;
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.yxz.wulibibiji.dto.MessageDTO;
 import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.dto.UserDTO;
 import com.yxz.wulibibiji.entity.Message;
-import com.yxz.wulibibiji.entity.Soncomment;
 import com.yxz.wulibibiji.entity.User;
 import com.yxz.wulibibiji.mapper.MessageMapper;
 import com.yxz.wulibibiji.service.MessageService;
@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -77,6 +78,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         return Result.ok(count);
     }
 
+
     @Override
     public Result withdrawMessage(Integer id) {
         Date date = DateUtil.date();
@@ -102,12 +104,66 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     }
 
     @Override
-    public Result unreadMessage() {
+    public Result unreadAllMessage() {
         UserDTO user = UserHolder.getUser();
         if (user == null) {
             return Result.ok(0);
         }
         Integer count = query().eq("to_id", user.getEmail()).eq("status", 0).count();
+        return Result.ok(count);
+    }
+
+    @Override
+    public Result unreadPrivateMessage() {
+        UserDTO user = UserHolder.getUser();
+        if (user == null) {
+            return Result.ok(0);
+        }
+        Integer count = query().eq("to_id", user.getEmail()).eq("status", 0).ne("from_id", "1").count();
+        return Result.ok(count);
+    }
+
+    @Override
+    public Result unreadSystemMessage() {
+        UserDTO user = UserHolder.getUser();
+        if (user == null) {
+            return Result.ok(0);
+        }
+        Integer count = query().eq("to_id", user.getEmail()).eq("status", 0).eq("from_id", "1").count();
+        return Result.ok(count);
+    }
+
+    @Override
+    public Result getLatestNotice(String topic) {
+        if (UserHolder.getUser() == null) {
+            return Result.ok(0);
+        }
+        Message message = messageMapper.selectLatestNotice(UserHolder.getUser().getEmail(), topic);
+        MessageDTO messageDTO = new MessageDTO(message);
+        messageDTO.setContentMap(JSONUtil.toBean(message.getContent(), HashMap.class));
+        return Result.ok(messageDTO);
+    }
+
+    @Override
+    public Result getAllNotice(String topic,Integer current) {
+        if (UserHolder.getUser() == null) {
+            return Result.ok(0);
+        }
+
+        Page<Message> page = query().ne("status", "2").eq("from_id", "1").eq("to_id", UserHolder.getUser().getEmail())
+                .eq("conversion_id", topic).orderByDesc("created_time").page(new Page<>(current, SystemConstants.MAX_PAGE_SIZE));
+        update().ne("status", "2").eq("from_id", "1").eq("to_id", UserHolder.getUser().getEmail())
+                .eq("conversion_id", topic).set("status", "1").update();
+        return Result.ok(page);
+    }
+
+    @Override
+    public Result getNoticeUnreadCount(String topic) {
+        if (UserHolder.getUser() == null) {
+            return Result.ok(0);
+        }
+        Integer count = query().eq("status", "0").eq("from_id", "1")
+                .eq("to_id", UserHolder.getUser().getEmail()).eq("conversion_id", topic).count();
         return Result.ok(count);
     }
 

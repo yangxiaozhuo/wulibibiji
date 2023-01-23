@@ -44,7 +44,7 @@ public class SoncommentServiceImpl extends ServiceImpl<SoncommentMapper, Soncomm
     @Override
     public Result querySonComment(Integer current, Integer firstCommentId) {
         QueryWrapper<Soncomment> wrapper = new QueryWrapper<>();
-        wrapper.eq("son_comment_parent_id", firstCommentId).orderByAsc("son_comment_created_time");
+        wrapper.eq("son_comment_parent_id", firstCommentId).orderByDesc("son_comment_created_time");
         IPage<Soncomment> sonCommentIPage = soncommentMapper.listJoinInfoPages(new Page<>(current, SystemConstants.MAX_PAGE_SIZE), wrapper);
         sonCommentIPage.getRecords().forEach(soncomment -> {
             this.isSonCommentLiked(soncomment);

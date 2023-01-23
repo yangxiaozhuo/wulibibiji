@@ -45,6 +45,13 @@ spring:
       max-file-size: 1000MB
       max-request-size: 1000MB
 
+  #rabbitmq配置
+  rabbitmq:
+    host: 1.117.158.138
+    port: 5673
+    username: wulibbj
+    password: wulibbj
+    virtualHost: /
 # 应用服务 WEB 访问端口
 server:
   port: 8081
@@ -58,7 +65,7 @@ mybatis:
 #日志等级
 logging:
   level:
-    com.yxz.wulibibiji: debug
+    com.yxz.wulibibiji: info
 
 
 #七牛配置

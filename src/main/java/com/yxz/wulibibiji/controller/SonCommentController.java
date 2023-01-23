@@ -28,7 +28,7 @@ public class SonCommentController {
     })
     @ApiOperation(value = "查询父级评论对应的子级评论", notes = "默认查询最新的十条数据")
     @GetMapping("/getList")
-    public Result queryNewArticle(@RequestParam(value = "current", defaultValue = "1") Integer current,
+    public Result querySonComment(@RequestParam(value = "current", defaultValue = "1") Integer current,
                                   @RequestParam(value = "firstCommentId") Integer firstCommentId) {
         return soncommentService.querySonComment(current, firstCommentId);
     }
@@ -36,7 +36,7 @@ public class SonCommentController {
     @ApiImplicitParam(name = "id", value = "二级评论id", dataType = "Integer", required = true)
     @ApiOperation(value = "给二级评论点赞或取消")
     @PutMapping("/like/{id}")
-    public Result likeBlog(@PathVariable("id") Long id) {
+    public Result likeSonComment(@PathVariable("id") Long id) {
         return soncommentService.likeSonComment(id);
     }
 

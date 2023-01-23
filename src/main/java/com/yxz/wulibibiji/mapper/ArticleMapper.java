@@ -18,6 +18,9 @@ import org.apache.ibatis.annotations.Param;
 public interface ArticleMapper extends BaseMapper<Article> {
 
     IPage<Article> listJoinInfoPages(IPage<Article> page, @Param(Constants.WRAPPER) Wrapper<Article> queryWrapper);
+
+
+    Article queryDetail(@Param(Constants.WRAPPER) Wrapper<Article> queryWrapper);
 }
 
 
