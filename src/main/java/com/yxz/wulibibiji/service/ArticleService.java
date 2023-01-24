@@ -17,9 +17,9 @@ import java.util.List;
  */
 @Service
 public interface ArticleService extends IService<Article> {
-    Result queryNewArticle(Integer current);
+    Result queryNewArticle(Integer current, Integer category);
 
-    Result queryHotArticle(Integer current);
+    Result queryHotArticle(Integer current, Integer category);
 
     Result createArticle(ArticleDTO articleDTO);
 
@@ -29,5 +29,6 @@ public interface ArticleService extends IService<Article> {
 
     Result allArticle(String useId, int current);
 
-    Result detailAriticle(Long id);
+    Result detailArticle(Long id);
+
 }

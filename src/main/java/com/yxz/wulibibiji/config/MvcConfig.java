@@ -2,6 +2,7 @@ package com.yxz.wulibibiji.config;
 
 import com.yxz.wulibibiji.utils.LoginInterceptor;
 import com.yxz.wulibibiji.utils.RefreshTokenInterceptor;
+import com.yxz.wulibibiji.utils.UVInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -32,6 +33,7 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/**"
                 ).order(1);
         registry.addInterceptor(new RefreshTokenInterceptor(stringRedisTemplate)).addPathPatterns("/**").order(0);
+        registry.addInterceptor(new UVInterceptor(stringRedisTemplate)).addPathPatterns("/article/new").order(0);
     }
 
     // 请求跨域

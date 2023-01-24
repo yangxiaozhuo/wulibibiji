@@ -1,6 +1,8 @@
 package com.yxz.wulibibiji.service.impl;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.dfa.FoundWord;
+import cn.hutool.dfa.SensitiveUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -8,9 +10,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.dto.SonCommentDTO;
 import com.yxz.wulibibiji.entity.Soncomment;
+import com.yxz.wulibibiji.entity.User;
 import com.yxz.wulibibiji.mapper.SoncommentMapper;
 import com.yxz.wulibibiji.service.FirstcommentService;
 import com.yxz.wulibibiji.service.SoncommentService;
+import com.yxz.wulibibiji.service.UserService;
 import com.yxz.wulibibiji.utils.SystemConstants;
 import com.yxz.wulibibiji.utils.UserHolder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +22,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 import static com.yxz.wulibibiji.utils.RedisConstants.SON_COMMENT_LIKED_KEY;
 
@@ -37,10 +42,13 @@ public class SoncommentServiceImpl extends ServiceImpl<SoncommentMapper, Soncomm
     @Autowired
     private FirstcommentService firstcommentService;
 
+    @Autowired
+    private UserService userService;
+
     @Override
     public Result querySonComment(Integer current, Integer firstCommentId) {
         QueryWrapper<Soncomment> wrapper = new QueryWrapper<>();
-        wrapper.eq("son_comment_parent_id", firstCommentId).orderByAsc("son_comment_created_time");
+        wrapper.eq("son_comment_parent_id", firstCommentId).orderByDesc("son_comment_created_time");
         IPage<Soncomment> sonCommentIPage = soncommentMapper.listJoinInfoPages(new Page<>(current, SystemConstants.MAX_PAGE_SIZE), wrapper);
         sonCommentIPage.getRecords().forEach(soncomment -> {
             this.isSonCommentLiked(soncomment);
@@ -73,6 +81,10 @@ public class SoncommentServiceImpl extends ServiceImpl<SoncommentMapper, Soncomm
 
     @Override
     public Result createSonComment(SonCommentDTO soncommentDTO) {
+        List<FoundWord> foundAllSensitive = SensitiveUtil.getFoundAllSensitive(soncommentDTO.getSonCommentContent());
+        if (!foundAllSensitive.isEmpty()) {
+            return Result.fail("评论内容中含有以下违禁词 " + foundAllSensitive.toString() + " ,请修改后发布");
+        }
         Soncomment soncomment = new Soncomment(soncommentDTO.getSonCommentParentId(),
                 UserHolder.getUser().getEmail(),
                 soncommentDTO.getSonCommentReplyId(),
@@ -86,6 +98,22 @@ public class SoncommentServiceImpl extends ServiceImpl<SoncommentMapper, Soncomm
         } else {
             return Result.fail("系统错误");
         }
+    }
+
+    @Override
+    public Result detailSonComment(Long id) {
+        Soncomment soncomment = getById(id);
+        if (soncomment == null) {
+            return Result.fail("没有这条评论");
+        }
+        isSonCommentLiked(soncomment);
+        User user = userService.getById(soncomment.getSonCommentUserId());
+        User replyUser = userService.getById(soncomment.getSonCommentReplyUserId());
+        soncomment.setCommentUserAvatar(user.getAvatar());
+        soncomment.setCommentUserName(user.getNickname());
+        soncomment.setCommentReplyAvatar(replyUser.getAvatar());
+        soncomment.setCommentReplyName(replyUser.getNickname());
+        return Result.ok(soncomment);
     }
 
     private void isSonCommentLiked(Soncomment soncomment) {

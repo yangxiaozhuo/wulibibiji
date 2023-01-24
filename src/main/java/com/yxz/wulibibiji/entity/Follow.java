@@ -4,14 +4,14 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
 import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 
  * @TableName follow
  */
-@TableName(value ="follow")
+@TableName(value = "follow")
 public class Follow implements Serializable {
     /**
      * 主键，关注主键
@@ -116,9 +116,9 @@ public class Follow implements Serializable {
         }
         Follow other = (Follow) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
-            && (this.getFollowUserId() == null ? other.getFollowUserId() == null : this.getFollowUserId().equals(other.getFollowUserId()))
-            && (this.getCreatedTime() == null ? other.getCreatedTime() == null : this.getCreatedTime().equals(other.getCreatedTime()));
+                && (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
+                && (this.getFollowUserId() == null ? other.getFollowUserId() == null : this.getFollowUserId().equals(other.getFollowUserId()))
+                && (this.getCreatedTime() == null ? other.getCreatedTime() == null : this.getCreatedTime().equals(other.getCreatedTime()));
     }
 
     @Override

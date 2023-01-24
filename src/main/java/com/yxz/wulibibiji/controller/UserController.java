@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import java.util.Map;
 
 /**
  * @author yangxiaozhuo
@@ -38,18 +38,15 @@ public class UserController {
     @ApiImplicitParam(name = "email", value = "教育邮箱地址", required = true)
     @ApiOperation(value = "教育邮箱发送验证码", notes = "给教育邮箱发送验证码，前端验证一下邮箱:长度为18位并且以@whut.edu.cn结尾")
     @PostMapping("/sentCode")
-    public Result create(@RequestParam("email") String email) {
+    public Result sentCode(@RequestParam("email") String email) {
         return userService.sentCode(email);
     }
 
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "loginForm", value = "用户登录对象", dataType = "LoginFormDTO", required = true),
-            @ApiImplicitParam(name = "session", value = "session对象", dataType = "HttpSession", required = true)
-    })
+    @ApiImplicitParam(name = "loginForm", value = "用户登录对象", dataType = "LoginFormDTO", required = true)
     @ApiOperation(value = "用户登录")
     @PostMapping("/login")
-    public Result login(@RequestBody LoginFormDTO loginForm, HttpSession session) {
-        return userService.login(loginForm, session);
+    public Result login(@RequestBody LoginFormDTO loginForm) {
+        return userService.login(loginForm);
     }
 
     @ApiImplicitParam(name = "User", value = "用户User对象", dataType = "User", required = false)
@@ -65,9 +62,8 @@ public class UserController {
     })
     @ApiOperation(value = "修改密码", notes = "用户密码长度必须是大于6，只允许出现数字和字母")
     @PostMapping("/editPassword")
-    public Result editPassword(@RequestParam("oldPassword") String oldPassword,
-                               @RequestParam("newPassword") String newPassword) {
-        return userService.editPassword(oldPassword, newPassword);
+    public Result editPassword(@RequestBody Map<String, String> data) {
+        return userService.editPassword(data.get("oldPassword"), data.get("newPassword"));
     }
 
     @ApiImplicitParam(name = "file", value = "图片对象", dataType = "MultipartFile", required = true)

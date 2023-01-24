@@ -7,7 +7,6 @@ import com.yxz.wulibibiji.entity.User;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 /**
  * @author Yang
@@ -16,12 +15,11 @@ import javax.servlet.http.HttpSession;
  */
 public interface UserService extends IService<User> {
 
-
     Result sentCode(String email);
 
     Result create(LoginFormDTO loginFormDTO);
 
-    Result login(LoginFormDTO loginForm, HttpSession session);
+    Result login(LoginFormDTO loginForm);
 
     Result edit(User user);
 

@@ -19,5 +19,4 @@ public interface IQiNiuService {
     Result uploadFile(InputStream inputStream, String key) throws IOException;
 
     Result delete(String key) throws QiniuException;
-
 }

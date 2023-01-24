@@ -4,11 +4,15 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileTypeUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.dfa.FoundWord;
+import cn.hutool.dfa.SensitiveUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.yxz.wulibibiji.Event.EventProducer;
 import com.yxz.wulibibiji.dto.ArticleDTO;
+import com.yxz.wulibibiji.dto.Event;
 import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.dto.UserDTO;
 import com.yxz.wulibibiji.entity.Article;
@@ -18,6 +22,7 @@ import com.yxz.wulibibiji.service.CategoryService;
 import com.yxz.wulibibiji.service.other.IQiNiuService;
 import com.yxz.wulibibiji.utils.MyFileUtil;
 import com.yxz.wulibibiji.utils.UserHolder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -26,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.yxz.wulibibiji.utils.RabbitConstants.TOPIC_LIKE;
 import static com.yxz.wulibibiji.utils.RedisConstants.*;
 import static com.yxz.wulibibiji.utils.SystemConstants.*;
 
@@ -35,6 +41,7 @@ import static com.yxz.wulibibiji.utils.SystemConstants.*;
  * @createDate 2022-11-18 22:24:23
  */
 @Service
+@Slf4j
 public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> implements ArticleService {
 
     @Autowired
@@ -49,12 +56,18 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Autowired
     private ArticleMapper articleMapper;
 
+    @Autowired
+    private EventProducer eventProducer;
+
 
     @Override
-    public Result queryNewArticle(Integer current) {
+    public Result queryNewArticle(Integer current, Integer category) {
         // 1.获取当前页数据
         QueryWrapper<Article> wrapper = new QueryWrapper<>();
         wrapper.eq("is_deleted", 0).orderByDesc("created_time");
+        if (category != 0) {
+            wrapper.eq("article_category_id", category);
+        }
         IPage<Article> page = articleMapper.listJoinInfoPages(new Page<>(current, MAX_PAGE_SIZE), wrapper);
         page.getRecords().forEach(article -> {
             this.isArticleLiked(article);
@@ -63,8 +76,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     @Override
-    public Result queryHotArticle(Integer current) {
-        QueryWrapper<Article> wrapper = new QueryWrapper<>();//
+    public Result queryHotArticle(Integer current, Integer category) {
+        QueryWrapper<Article> wrapper = new QueryWrapper<>();
         wrapper.eq("is_deleted", 0).ge("created_time", DateUtil.lastMonth()).orderByDesc("article_like_count");
         IPage<Article> page = articleMapper.listJoinInfoPages(new Page<>(current, MAX_PAGE_SIZE), wrapper);
         // 1.获取当前页数据
@@ -81,6 +94,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         UserDTO user = UserHolder.getUser();
         if (articleDTO.getArticleTitle().length() > 40) {
             return Result.fail("标题最多不允许超过40个字符");
+        }
+        //处理敏感词
+        List<FoundWord> foundAllSensitive = SensitiveUtil.getFoundAllSensitive(articleDTO.getArticleTitle());
+        if (!foundAllSensitive.isEmpty()) {
+            return Result.fail("标题中含有以下违禁词 " + foundAllSensitive.toString() + " ,请修改后发布");
+        }
+        foundAllSensitive = SensitiveUtil.getFoundAllSensitive(articleDTO.getArticleContent());
+        if (!foundAllSensitive.isEmpty()) {
+            return Result.fail("正文中中含有以下违禁词 " + foundAllSensitive.toString() + " ,请修改后发布");
         }
         Result result = categoryService.getCategoryById(articleDTO.getArticleCategoryId());
         if (result.getCode() != SUCCESS_CODE) {
@@ -110,6 +132,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             if (isSuccess) {
                 stringRedisTemplate.opsForZSet().add(key, userId, System.currentTimeMillis());
             }
+            sentMq(id + "", getById(id).getArticleUserId());
         } else {
             //已点赞 可以取消
             boolean isSuccess = update().setSql("article_like_count = article_like_count - 1").eq("article_id", id).update();
@@ -118,6 +141,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             }
         }
         return Result.ok();
+    }
+
+    public void sentMq(String articleid, String userid) {
+        Event event = new Event(TOPIC_LIKE, UserHolder.getUser().getEmail(), "article", articleid, userid);
+        eventProducer.fireEvent(event);
     }
 
     @Override
@@ -162,18 +190,22 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Override
     public Result allArticle(String useId, int current) {
-        IPage<Article> page = query().eq("article_user_id", useId).orderByDesc("created_time").page(new Page<>(1, MAX_PAGE_SIZE));
+        IPage<Article> page = query().eq("article_user_id", useId).orderByDesc("created_time").page(new Page<>(current, MAX_PAGE_SIZE));
+        page.getRecords().forEach(article -> isArticleLiked(article));
         return Result.ok(page);
     }
 
     @Override
-    public Result detailAriticle(Long id) {
-        Article article = getById(id);
+    public Result detailArticle(Long id) {
+        QueryWrapper<Article> wrapper = new QueryWrapper<>();
+        wrapper.eq("article_id", id);
+        Article article = articleMapper.queryDetail(wrapper);
         if (article == null) {
             return Result.fail("没有这篇文章");
         }
         article.setArticleViewCount(article.getArticleViewCount() + RandomUtil.randomInt(3) + 1);
         updateById(article);
+        isArticleLiked(article);
         return Result.ok(article);
     }
 

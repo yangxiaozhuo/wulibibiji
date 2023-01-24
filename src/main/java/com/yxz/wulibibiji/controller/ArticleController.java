@@ -24,18 +24,26 @@ public class ArticleController {
     @Resource
     private ArticleService articleService;
 
-    @ApiImplicitParam(name = "current", value = "查询的页码数", dataType = "Integer", required = false)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "category", value = "分类id", dataType = "Integer", required = false),
+            @ApiImplicitParam(name = "current", value = "查询的页码数", dataType = "Integer", required = false)
+    })
     @ApiOperation(value = "首页最新文章", notes = "默认查询最新的十条数据")
     @GetMapping("/new")
-    public Result queryNewArticle(@RequestParam(value = "current", defaultValue = "1") Integer current) {
-        return articleService.queryNewArticle(current);
+    public Result queryNewArticle(@RequestParam(value = "current", defaultValue = "1") Integer current,
+                                  @RequestParam(value = "category", defaultValue = "0") Integer category) {
+        return articleService.queryNewArticle(current, category);
     }
 
-    @ApiImplicitParam(name = "current", value = "查询的页码数", dataType = "Integer", required = false)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "category", value = "分类id", dataType = "Integer", required = false),
+            @ApiImplicitParam(name = "current", value = "查询的页码数", dataType = "Integer", required = false)
+    })
     @ApiOperation(value = "过去一个月点赞数最多的文章", notes = "默认查询点赞数最多的十条数据")
     @GetMapping("/hot")
-    public Result queryHotArticleg(@RequestParam(value = "current", defaultValue = "1") Integer current) {
-        return articleService.queryHotArticle(current);
+    public Result queryHotArticle(@RequestParam(value = "current", defaultValue = "1") Integer current,
+                                  @RequestParam(value = "category", defaultValue = "0") Integer category) {
+        return articleService.queryHotArticle(current, category);
     }
 
     @ApiImplicitParam(name = "articleDTO", value = "新增的文章对象", dataType = "ArticleDTO", required = true)
@@ -58,15 +66,15 @@ public class ArticleController {
     @ApiImplicitParam(name = "id", value = "文章id", dataType = "Integer", required = true)
     @ApiOperation(value = "给文章点赞或取消")
     @PutMapping("/like/{id}")
-    public Result likeAriticle(@PathVariable("id") Long id) {
+    public Result likeArticle(@PathVariable("id") Long id) {
         return articleService.likeArticle(id);
     }
 
     @ApiImplicitParam(name = "id", value = "文章id", dataType = "Integer", required = true)
     @ApiOperation(value = "查询文章详细信息")
     @GetMapping("/detail/{id}")
-    public Result detailAriticle(@PathVariable("id") Long id) {
-        return articleService.detailAriticle(id);
+    public Result detailArticle(@PathVariable("id") Long id) {
+        return articleService.detailArticle(id);
     }
 
     @ApiImplicitParams({
@@ -75,7 +83,7 @@ public class ArticleController {
     })
     @ApiOperation(value = "查询某用户的所有文章")
     @GetMapping("/all")
-    public Result allArticle(@RequestParam("useId") String useId, @RequestParam("current") Integer current) {
+    public Result allArticle(@RequestParam("useId") String useId, @RequestParam(value = "current", defaultValue = "1") Integer current) {
         return articleService.allArticle(useId, current);
     }
 }

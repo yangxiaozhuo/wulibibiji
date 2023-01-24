@@ -3,12 +3,17 @@ package com.yxz.wulibibiji.service.impl;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.yxz.wulibibiji.Event.EventProducer;
+import com.yxz.wulibibiji.dto.Event;
 import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.entity.Follow;
-import com.yxz.wulibibiji.service.FollowService;
 import com.yxz.wulibibiji.mapper.FollowMapper;
+import com.yxz.wulibibiji.service.FollowService;
 import com.yxz.wulibibiji.utils.UserHolder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import static com.yxz.wulibibiji.utils.RabbitConstants.TOPIC_FOLLOW;
 
 /**
  * @author Yang
@@ -18,6 +23,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class FollowServiceImpl extends ServiceImpl<FollowMapper, Follow> implements FollowService {
 
+    @Autowired
+    private EventProducer eventProducer;
+
     @Override
     public Result follow(String userId, boolean isFollow) {
         boolean haveFollowed = isFollow(userId);
@@ -25,6 +33,7 @@ public class FollowServiceImpl extends ServiceImpl<FollowMapper, Follow> impleme
             //关注，并且确定还没关注
             Follow follow = new Follow(null, UserHolder.getUser().getEmail(), userId, DateUtil.date());
             if (save(follow)) {
+                sentMq(userId);
                 return Result.ok("关注成功");
             } else {
                 return Result.fail("关注失败");
@@ -46,6 +55,11 @@ public class FollowServiceImpl extends ServiceImpl<FollowMapper, Follow> impleme
     @Override
     public Result isFollowed(String userId) {
         return Result.ok(isFollow(userId));
+    }
+
+    public void sentMq(String userid) {
+        Event event = new Event(TOPIC_FOLLOW, UserHolder.getUser().getEmail(), "user", userid, userid);
+        eventProducer.fireEvent(event);
     }
 
     private boolean isFollow(String userId) {
