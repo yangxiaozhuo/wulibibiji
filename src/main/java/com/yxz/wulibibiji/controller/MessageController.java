@@ -10,13 +10,12 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * @author yangxiaozhuo
  * @date 2023/01/13
  */
-@Api(tags = "私信相关接口")
+@Api(tags = "消息相关接口")
 @RestController
 @RequestMapping("/message")
 public class MessageController {
@@ -75,7 +74,7 @@ public class MessageController {
     })
     @ApiOperation(value = "查询某个分类所包含的通知列表", notes = "分类包括，like（点赞），comment（评论），follow（关注）")
     @GetMapping("/getAllNotice")
-    public Result getAllNotice(@RequestParam("topic") String topic, @RequestParam(value = "current",defaultValue = "1") Integer current) {
+    public Result getAllNotice(@RequestParam("topic") String topic, @RequestParam(value = "current", defaultValue = "1") Integer current) {
         return messageService.getAllNotice(topic, current);
     }
 

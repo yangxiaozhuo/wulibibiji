@@ -3,7 +3,6 @@ package com.yxz.wulibibiji.service.impl;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.dfa.FoundWord;
 import cn.hutool.dfa.SensitiveUtil;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -13,22 +12,20 @@ import com.yxz.wulibibiji.dto.Event;
 import com.yxz.wulibibiji.dto.FirstcommentDTO;
 import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.entity.Firstcomment;
+import com.yxz.wulibibiji.entity.User;
 import com.yxz.wulibibiji.mapper.FirstcommentMapper;
 import com.yxz.wulibibiji.service.ArticleService;
 import com.yxz.wulibibiji.service.FirstcommentService;
 import com.yxz.wulibibiji.utils.SystemConstants;
 import com.yxz.wulibibiji.utils.UserHolder;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-
 import java.util.List;
 
 import static com.yxz.wulibibiji.utils.RabbitConstants.TOPIC_COMMENT;
-import static com.yxz.wulibibiji.utils.RabbitConstants.TOPIC_LIKE;
 import static com.yxz.wulibibiji.utils.RedisConstants.FIRST_COMMENT_LIKED_KEY;
 
 /**
@@ -47,6 +44,9 @@ public class FirstcommentServiceImpl extends ServiceImpl<FirstcommentMapper, Fir
 
     @Autowired
     private ArticleService articleService;
+
+    @Autowired
+    private UserServiceImpl userService;
 
     @Autowired
     private EventProducer eventProducer;
@@ -112,12 +112,29 @@ public class FirstcommentServiceImpl extends ServiceImpl<FirstcommentMapper, Fir
                 setSql("article_comment_count = article_comment_count + 1").
                 eq("article_id", firstcommentDTO.getFirstCommentArticleId()).
                 update()) {
-            sentMq(String.valueOf(firstcommentDTO.getFirstCommentArticleId()),articleService.getById(firstcommentDTO.getFirstCommentArticleId()).getArticleUserId());
-            return Result.ok();
+            sentMq(String.valueOf(firstcommentDTO.getFirstCommentArticleId()), articleService.getById(firstcommentDTO.getFirstCommentArticleId()).getArticleUserId());
+            firstcomment.setAvatar(UserHolder.getUser().getAvatar());
+            firstcomment.setName(UserHolder.getUser().getNickName());
+            firstcomment.setLiked(false);
+            return Result.ok(firstcomment);
         } else {
             return Result.fail("系统错误");
         }
     }
+
+    @Override
+    public Result detailComment(Long id) {
+        Firstcomment firstcomment = getById(id);
+        if (firstcomment == null) {
+            return Result.fail("没有这条评论");
+        }
+        isFirstCommentLiked(firstcomment);
+        User user = userService.getById(firstcomment.getFirstCommentUserId());
+        firstcomment.setAvatar(user.getAvatar());
+        firstcomment.setName(user.getNickname());
+        return Result.ok(firstcomment);
+    }
+
     public void sentMq(String articleid, String userid) {
         Event event = new Event(TOPIC_COMMENT, UserHolder.getUser().getEmail(), "article", articleid, userid);
         eventProducer.fireEvent(event);

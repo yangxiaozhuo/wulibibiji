@@ -145,7 +145,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     }
 
     @Override
-    public Result getAllNotice(String topic,Integer current) {
+    public Result getAllNotice(String topic, Integer current) {
         if (UserHolder.getUser() == null) {
             return Result.ok(0);
         }

@@ -1,7 +1,6 @@
 package com.yxz.wulibibiji.controller;
 
 import com.yxz.wulibibiji.dto.Result;
-import com.yxz.wulibibiji.service.FirstcommentService;
 import com.yxz.wulibibiji.service.FollowService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;

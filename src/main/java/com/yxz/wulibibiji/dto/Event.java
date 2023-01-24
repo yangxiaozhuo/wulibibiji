@@ -1,8 +1,5 @@
 package com.yxz.wulibibiji.dto;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * @author yangxiaozhuo
  * @date 2023/01/23

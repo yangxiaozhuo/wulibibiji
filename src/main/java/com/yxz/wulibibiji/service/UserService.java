@@ -7,7 +7,6 @@ import com.yxz.wulibibiji.entity.User;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 /**
  * @author Yang
@@ -15,7 +14,6 @@ import javax.servlet.http.HttpSession;
  * @createDate 2022-11-18 22:24:23
  */
 public interface UserService extends IService<User> {
-
 
     Result sentCode(String email);
 

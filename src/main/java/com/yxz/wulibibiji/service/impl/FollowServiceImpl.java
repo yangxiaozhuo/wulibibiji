@@ -1,22 +1,19 @@
 package com.yxz.wulibibiji.service.impl;
 
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yxz.wulibibiji.Event.EventProducer;
 import com.yxz.wulibibiji.dto.Event;
 import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.entity.Follow;
-import com.yxz.wulibibiji.service.FollowService;
 import com.yxz.wulibibiji.mapper.FollowMapper;
+import com.yxz.wulibibiji.service.FollowService;
 import com.yxz.wulibibiji.utils.UserHolder;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import static com.yxz.wulibibiji.utils.RabbitConstants.TOPIC_FOLLOW;
-import static com.yxz.wulibibiji.utils.RabbitConstants.TOPIC_LIKE;
 
 /**
  * @author Yang

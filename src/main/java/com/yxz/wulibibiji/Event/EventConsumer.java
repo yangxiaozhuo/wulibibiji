@@ -1,15 +1,12 @@
 package com.yxz.wulibibiji.Event;
 
-import ch.qos.logback.classic.jul.JULHelper;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.rabbitmq.client.Channel;
 import com.yxz.wulibibiji.dto.Event;
 import com.yxz.wulibibiji.entity.Message;
 import com.yxz.wulibibiji.mapper.MessageMapper;
-import com.yxz.wulibibiji.service.MessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;

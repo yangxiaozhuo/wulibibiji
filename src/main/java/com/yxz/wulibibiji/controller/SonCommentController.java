@@ -33,6 +33,13 @@ public class SonCommentController {
         return soncommentService.querySonComment(current, firstCommentId);
     }
 
+    @ApiImplicitParam(name = "id", value = "评论的id", dataType = "Integer", required = true)
+    @ApiOperation(value = "查询二级评论详细信息")
+    @GetMapping("/detail/{id}")
+    public Result detailSonComment(@PathVariable("id") Long id) {
+        return soncommentService.detailSonComment(id);
+    }
+
     @ApiImplicitParam(name = "id", value = "二级评论id", dataType = "Integer", required = true)
     @ApiOperation(value = "给二级评论点赞或取消")
     @PutMapping("/like/{id}")

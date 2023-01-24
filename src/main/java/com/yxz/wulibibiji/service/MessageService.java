@@ -1,8 +1,8 @@
 package com.yxz.wulibibiji.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.entity.Message;
-import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * @author Yang
@@ -29,7 +29,7 @@ public interface MessageService extends IService<Message> {
 
     Result getLatestNotice(String topic);
 
-    Result getAllNotice(String topic,Integer current);
+    Result getAllNotice(String topic, Integer current);
 
     Result getNoticeUnreadCount(String topic);
 }

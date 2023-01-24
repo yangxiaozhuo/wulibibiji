@@ -19,4 +19,6 @@ public interface FirstcommentService extends IService<Firstcomment> {
     Result likeFirstComment(long id);
 
     Result createFirstComment(FirstcommentDTO firstcommentDTO);
+
+    Result detailComment(Long id);
 }

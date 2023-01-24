@@ -52,6 +52,9 @@ spring:
     username: wulibbj
     password: wulibbj
     virtualHost: /
+
+  profiles:
+    active: prod
 # 应用服务 WEB 访问端口
 server:
   port: 8081
@@ -64,8 +67,9 @@ mybatis:
 
 #日志等级
 logging:
+  config: classpath:logback-spring.xml
   level:
-    com.yxz.wulibibiji: info
+    com.yxz.wulibibiji: debug
 
 
 #七牛配置

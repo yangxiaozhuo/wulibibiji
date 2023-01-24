@@ -6,7 +6,6 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.dfa.FoundWord;
 import cn.hutool.dfa.SensitiveUtil;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -23,7 +22,7 @@ import com.yxz.wulibibiji.service.CategoryService;
 import com.yxz.wulibibiji.service.other.IQiNiuService;
 import com.yxz.wulibibiji.utils.MyFileUtil;
 import com.yxz.wulibibiji.utils.UserHolder;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -32,7 +31,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.yxz.wulibibiji.utils.RabbitConstants.TOPIC_COMMENT;
 import static com.yxz.wulibibiji.utils.RabbitConstants.TOPIC_LIKE;
 import static com.yxz.wulibibiji.utils.RedisConstants.*;
 import static com.yxz.wulibibiji.utils.SystemConstants.*;
@@ -43,6 +41,7 @@ import static com.yxz.wulibibiji.utils.SystemConstants.*;
  * @createDate 2022-11-18 22:24:23
  */
 @Service
+@Slf4j
 public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> implements ArticleService {
 
     @Autowired
@@ -62,10 +61,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
 
     @Override
-    public Result queryNewArticle(Integer current) {
+    public Result queryNewArticle(Integer current, Integer category) {
         // 1.获取当前页数据
         QueryWrapper<Article> wrapper = new QueryWrapper<>();
         wrapper.eq("is_deleted", 0).orderByDesc("created_time");
+        if (category != 0) {
+            wrapper.eq("article_category_id", category);
+        }
         IPage<Article> page = articleMapper.listJoinInfoPages(new Page<>(current, MAX_PAGE_SIZE), wrapper);
         page.getRecords().forEach(article -> {
             this.isArticleLiked(article);
@@ -74,8 +76,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     @Override
-    public Result queryHotArticle(Integer current) {
-        QueryWrapper<Article> wrapper = new QueryWrapper<>();//
+    public Result queryHotArticle(Integer current, Integer category) {
+        QueryWrapper<Article> wrapper = new QueryWrapper<>();
         wrapper.eq("is_deleted", 0).ge("created_time", DateUtil.lastMonth()).orderByDesc("article_like_count");
         IPage<Article> page = articleMapper.listJoinInfoPages(new Page<>(current, MAX_PAGE_SIZE), wrapper);
         // 1.获取当前页数据
@@ -206,7 +208,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         isArticleLiked(article);
         return Result.ok(article);
     }
-
 
 
     private void isArticleLiked(Article article) {

@@ -4,14 +4,14 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
 import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 
  * @TableName uvCount
  */
-@TableName(value ="uvCount")
+@TableName(value = "uvCount")
 public class Uvcount implements Serializable {
     /**
      * 主键，关注主键
@@ -116,9 +116,9 @@ public class Uvcount implements Serializable {
         }
         Uvcount other = (Uvcount) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getCount() == null ? other.getCount() == null : this.getCount().equals(other.getCount()))
-            && (this.getDay() == null ? other.getDay() == null : this.getDay().equals(other.getDay()))
-            && (this.getRemark() == null ? other.getRemark() == null : this.getRemark().equals(other.getRemark()));
+                && (this.getCount() == null ? other.getCount() == null : this.getCount().equals(other.getCount()))
+                && (this.getDay() == null ? other.getDay() == null : this.getDay().equals(other.getDay()))
+                && (this.getRemark() == null ? other.getRemark() == null : this.getRemark().equals(other.getRemark()));
     }
 
     @Override

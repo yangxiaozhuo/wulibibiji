@@ -44,6 +44,13 @@ public class FirstCommentController {
         return firstcommentService.queryHotFirstComment(current, articleId);
     }
 
+    @ApiImplicitParam(name = "id", value = "评论的id", dataType = "Integer", required = true)
+    @ApiOperation(value = "查询一级评论详细信息")
+    @GetMapping("/detail/{id}")
+    public Result detailComment(@PathVariable("id") Long id) {
+        return firstcommentService.detailComment(id);
+    }
+
     @ApiImplicitParam(name = "firstcommentDTO", value = "评论对象，包括所属文章id，和评论内容", dataType = "FirstcommentDTO", required = true)
     @ApiOperation(value = "新增评论", notes = "一级评论，评论内容长度小于等于255")
     @PostMapping("/create")

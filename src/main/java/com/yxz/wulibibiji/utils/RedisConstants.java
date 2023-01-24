@@ -22,7 +22,7 @@ public class RedisConstants {
     /**
      * 用户登录token的key的过期时间，单位小时
      */
-    public static final Long LOGIN_USER_TTL = 10000L;
+    public static final Long LOGIN_USER_TTL = 48L;
     /**
      * 用户给文章点赞
      */

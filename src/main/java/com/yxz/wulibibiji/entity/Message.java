@@ -4,14 +4,14 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
 import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 
  * @TableName message
  */
-@TableName(value ="message")
+@TableName(value = "message")
 public class Message implements Serializable {
     /**
      * 主键，关注主键
@@ -217,12 +217,12 @@ public class Message implements Serializable {
         }
         Message other = (Message) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getFromId() == null ? other.getFromId() == null : this.getFromId().equals(other.getFromId()))
-            && (this.getToId() == null ? other.getToId() == null : this.getToId().equals(other.getToId()))
-            && (this.getConversionId() == null ? other.getConversionId() == null : this.getConversionId().equals(other.getConversionId()))
-            && (this.getContent() == null ? other.getContent() == null : this.getContent().equals(other.getContent()))
-            && (this.getStatus() == null ? other.getStatus() == null : this.getStatus().equals(other.getStatus()))
-            && (this.getCreatedTime() == null ? other.getCreatedTime() == null : this.getCreatedTime().equals(other.getCreatedTime()));
+                && (this.getFromId() == null ? other.getFromId() == null : this.getFromId().equals(other.getFromId()))
+                && (this.getToId() == null ? other.getToId() == null : this.getToId().equals(other.getToId()))
+                && (this.getConversionId() == null ? other.getConversionId() == null : this.getConversionId().equals(other.getConversionId()))
+                && (this.getContent() == null ? other.getContent() == null : this.getContent().equals(other.getContent()))
+                && (this.getStatus() == null ? other.getStatus() == null : this.getStatus().equals(other.getStatus()))
+                && (this.getCreatedTime() == null ? other.getCreatedTime() == null : this.getCreatedTime().equals(other.getCreatedTime()));
     }
 
     @Override

@@ -53,6 +53,6 @@ public class UVScheduledConfiguration {
             }
         }
         stringRedisTemplate.delete(key);
-        uvcountService.update().eq("id","1").setSql("count = count + " + value).update();
+        uvcountService.update().eq("id", "1").setSql("count = count + " + value).update();
     }
 }

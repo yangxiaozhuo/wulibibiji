@@ -17,4 +17,6 @@ public interface SoncommentService extends IService<Soncomment> {
     Result likeSonComment(long id);
 
     Result createSonComment(SonCommentDTO soncommentDTO);
+
+    Result detailSonComment(Long id);
 }
