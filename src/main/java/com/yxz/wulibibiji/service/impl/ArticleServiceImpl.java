@@ -79,6 +79,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     public Result queryHotArticle(Integer current, Integer category) {
         QueryWrapper<Article> wrapper = new QueryWrapper<>();
         wrapper.eq("is_deleted", 0).ge("created_time", DateUtil.lastMonth()).orderByDesc("article_like_count");
+        if (category != 0) {
+            wrapper.eq("article_category_id", category);
+        }
         IPage<Article> page = articleMapper.listJoinInfoPages(new Page<>(current, MAX_PAGE_SIZE), wrapper);
         // 1.获取当前页数据
         List<Article> records = page.getRecords();
@@ -203,7 +206,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (article == null) {
             return Result.fail("没有这篇文章");
         }
-        article.setArticleViewCount(article.getArticleViewCount() + RandomUtil.randomInt(3) + 1);
+        article.setArticleViewCount(article.getArticleViewCount() + 1);
         updateById(article);
         isArticleLiked(article);
         return Result.ok(article);

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.dto.SonCommentDTO;
 import com.yxz.wulibibiji.entity.Soncomment;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Yang
@@ -16,6 +17,7 @@ public interface SoncommentService extends IService<Soncomment> {
 
     Result likeSonComment(long id);
 
+    @Transactional
     Result createSonComment(SonCommentDTO soncommentDTO);
 
     Result detailSonComment(Long id);

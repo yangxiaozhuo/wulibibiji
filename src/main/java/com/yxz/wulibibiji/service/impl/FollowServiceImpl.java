@@ -63,6 +63,9 @@ public class FollowServiceImpl extends ServiceImpl<FollowMapper, Follow> impleme
     }
 
     private boolean isFollow(String userId) {
+        if (UserHolder.getUser() == null) {
+            return false;
+        }
         Follow one = query().eq("user_id", UserHolder.getUser().getEmail()).eq("follow_user_id", userId).one();
         if (one == null) {
             return false;

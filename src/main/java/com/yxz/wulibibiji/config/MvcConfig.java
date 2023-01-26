@@ -29,8 +29,19 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/user/sentCode",
                         "/user/create",
                         "/user/login",
-                        "/article/**",
-                        "/**"
+                        "/user/quary/**",
+                        "/uv/**",
+                        "/sonComment/getList",
+                        "/sonComment/detail/**",
+                        "/follow/or/not/**",
+                        "/firstComment/getNewList",
+                        "/firstComment/getHotList",
+                        "/firstComment/detail/**",
+                        "/category/**",
+                        "/article/new",
+                        "/article/hot",
+                        "/article/detail/**",
+                        "/article/all"
                 ).order(1);
         registry.addInterceptor(new RefreshTokenInterceptor(stringRedisTemplate)).addPathPatterns("/**").order(0);
         registry.addInterceptor(new UVInterceptor(stringRedisTemplate)).addPathPatterns("/article/new").order(0);

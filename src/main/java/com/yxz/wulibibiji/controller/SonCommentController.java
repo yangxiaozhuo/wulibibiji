@@ -47,7 +47,7 @@ public class SonCommentController {
         return soncommentService.likeSonComment(id);
     }
 
-    @ApiImplicitParam(name = "soncommentDTO", value = "评论对象，包括所属文章id，和评论内容", dataType = "FirstcommentDTO", required = true)
+    @ApiImplicitParam(name = "soncommentDTO", value = "评论对象，包括所一级评论，和评论内容，和at回复用户id", dataType = "SonCommentDTO", required = true)
     @ApiOperation(value = "新增二级评论", notes = "二级评论，评论内容长度小于等于255")
     @PostMapping("/create")
     public Result createSonComment(@RequestBody SonCommentDTO soncommentDTO) {

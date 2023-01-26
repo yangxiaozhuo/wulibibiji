@@ -9,9 +9,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.dto.SonCommentDTO;
+import com.yxz.wulibibiji.entity.Firstcomment;
 import com.yxz.wulibibiji.entity.Soncomment;
 import com.yxz.wulibibiji.entity.User;
 import com.yxz.wulibibiji.mapper.SoncommentMapper;
+import com.yxz.wulibibiji.service.ArticleService;
 import com.yxz.wulibibiji.service.FirstcommentService;
 import com.yxz.wulibibiji.service.SoncommentService;
 import com.yxz.wulibibiji.service.UserService;
@@ -41,6 +43,9 @@ public class SoncommentServiceImpl extends ServiceImpl<SoncommentMapper, Soncomm
 
     @Autowired
     private FirstcommentService firstcommentService;
+
+    @Autowired
+    private ArticleService articleService;
 
     @Autowired
     private UserService userService;
@@ -90,10 +95,12 @@ public class SoncommentServiceImpl extends ServiceImpl<SoncommentMapper, Soncomm
                 soncommentDTO.getSonCommentReplyId(),
                 soncommentDTO.getSonCommentContent(),
                 DateUtil.date());
-        if (this.save(soncomment) && firstcommentService.update().
-                setSql("first_comment_count = first_comment_count + 1").
-                eq("first_comment_id", soncomment.getSonCommentParentId()).
-                update()) {
+        Firstcomment firstcomment = firstcommentService.getById(soncomment.getSonCommentParentId());
+        firstcomment.setFirstCommentCount(firstcomment.getFirstCommentLikeCount() + 1);
+        if (this.save(soncomment)
+                && firstcommentService.updateById(firstcomment)
+                && articleService.update().setSql("article_comment_count = article_comment_count + 1").
+                eq("article_id", firstcomment.getFirstCommentArticleId()).update()) {
             return Result.ok();
         } else {
             return Result.fail("系统错误");
