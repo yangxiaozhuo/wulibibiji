@@ -16,9 +16,11 @@ import com.yxz.wulibibiji.dto.Event;
 import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.dto.UserDTO;
 import com.yxz.wulibibiji.entity.Article;
+import com.yxz.wulibibiji.entity.User;
 import com.yxz.wulibibiji.mapper.ArticleMapper;
 import com.yxz.wulibibiji.service.ArticleService;
 import com.yxz.wulibibiji.service.CategoryService;
+import com.yxz.wulibibiji.service.UserService;
 import com.yxz.wulibibiji.service.other.IQiNiuService;
 import com.yxz.wulibibiji.utils.MyFileUtil;
 import com.yxz.wulibibiji.utils.UserHolder;
@@ -58,6 +60,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Autowired
     private EventProducer eventProducer;
+
+    @Autowired
+    private UserService userService;
 
 
     @Override
@@ -193,8 +198,16 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Override
     public Result allArticle(String useId, int current) {
+        User user = userService.getById(useId);
+        if (user == null) {
+            return Result.fail("没用此用户");
+        }
         IPage<Article> page = query().eq("article_user_id", useId).orderByDesc("created_time").page(new Page<>(current, MAX_PAGE_SIZE));
         page.getRecords().forEach(article -> isArticleLiked(article));
+        page.getRecords().forEach(article -> {
+            article.setAvatar(user.getAvatar());
+            article.setName(user.getNickname());
+        });
         return Result.ok(page);
     }
 

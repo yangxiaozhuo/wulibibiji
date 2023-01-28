@@ -115,11 +115,15 @@ public class SoncommentServiceImpl extends ServiceImpl<SoncommentMapper, Soncomm
         }
         isSonCommentLiked(soncomment);
         User user = userService.getById(soncomment.getSonCommentUserId());
-        User replyUser = userService.getById(soncomment.getSonCommentReplyUserId());
+        if (soncomment.getSonCommentReplyUserId() != null) {
+            User replyUser = userService.getById(soncomment.getSonCommentReplyUserId());
+            if (replyUser != null) {
+                soncomment.setCommentReplyAvatar(replyUser.getAvatar());
+                soncomment.setCommentReplyName(replyUser.getNickname());
+            }
+        }
         soncomment.setCommentUserAvatar(user.getAvatar());
         soncomment.setCommentUserName(user.getNickname());
-        soncomment.setCommentReplyAvatar(replyUser.getAvatar());
-        soncomment.setCommentReplyName(replyUser.getNickname());
         return Result.ok(soncomment);
     }
 
