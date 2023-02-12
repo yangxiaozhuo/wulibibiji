@@ -39,7 +39,7 @@
             FROM
                 sonComment a
             INNER JOIN user b ON b.user_id = a.son_comment_reply_user_id
-            ) aa ON aa.`user_id` = sonComment.`son_comment_reply_user_id`
+            ) aa ON aa.`user_id` = sonComment.`son_comment_reply_user_id` and aa.son_comment_id = sonComment.son_comment_id
         ${ew.customSqlSegment}
     </select>
 </mapper>

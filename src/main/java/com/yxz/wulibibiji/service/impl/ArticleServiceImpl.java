@@ -83,7 +83,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Override
     public Result queryHotArticle(Integer current, Integer category) {
         QueryWrapper<Article> wrapper = new QueryWrapper<>();
-        wrapper.eq("is_deleted", 0).ge("created_time", DateUtil.lastMonth()).orderByDesc("article_like_count");
+        wrapper.eq("is_deleted", 0).ge("created_time", DateUtil.lastMonth()).orderByDesc("article_like_count").orderByDesc("created_time");
         if (category != 0) {
             wrapper.eq("article_category_id", category);
         }
@@ -191,8 +191,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             return Result.fail("更新失败！");
         } catch (Exception e) {
             return Result.fail("系统异常！");
-        } finally {
-            stringRedisTemplate.delete(CACHE_ARTICLE_NEW_KEY);
         }
     }
 

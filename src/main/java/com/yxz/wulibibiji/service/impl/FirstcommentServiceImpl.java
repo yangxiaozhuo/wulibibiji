@@ -65,7 +65,7 @@ public class FirstcommentServiceImpl extends ServiceImpl<FirstcommentMapper, Fir
     @Override
     public Result queryHotFirstComment(Integer current, Integer articleId) {
         QueryWrapper<Firstcomment> wrapper = new QueryWrapper<>();
-        wrapper.eq("first_comment_article_id", articleId).orderByDesc("first_comment_like_count");
+        wrapper.eq("first_comment_article_id", articleId).orderByDesc("first_comment_like_count").orderByAsc("first_comment_id");
         IPage<Firstcomment> firstCommentIPage = firstcommentMapper.listJoinInfoPages(new Page<>(current, SystemConstants.MAX_PAGE_SIZE), wrapper);
         firstCommentIPage.getRecords().forEach(firstcomment -> {
             this.isFirstCommentLiked(firstcomment);
