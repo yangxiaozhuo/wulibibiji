@@ -30,6 +30,7 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/user/create",
                         "/user/login",
                         "/user/quary/**",
+                        "/user/isLogin",
                         "/uv/**",
                         "/sonComment/getList",
                         "/sonComment/detail/**",

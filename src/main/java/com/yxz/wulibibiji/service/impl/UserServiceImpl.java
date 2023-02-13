@@ -225,6 +225,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     }
 
+    @Override
+    public Result isLogin() {
+        return Result.ok(UserHolder.getUser() != null);
+    }
+
     private Result sentEmail(String email) {
         //发email验证码
         Context context = new Context();

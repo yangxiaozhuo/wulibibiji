@@ -80,6 +80,12 @@ public class UserController {
         return userService.quaryUserInfo(userId);
     }
 
+    @ApiOperation(value = "查询用户是否登录", notes = "不需要参数,传入token即可。返回true || false")
+    @GetMapping("/isLogin")
+    public Result isLogin() {
+        return userService.isLogin();
+    }
+
     @ApiOperation(value = "退出登录", notes = "不需传入参数，代token")
     @PutMapping("/logout")
     public Result logout() {

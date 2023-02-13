@@ -30,4 +30,6 @@ public interface UserService extends IService<User> {
     Result quaryUserInfo(String userId);
 
     Result logout();
+
+    Result isLogin();
 }
