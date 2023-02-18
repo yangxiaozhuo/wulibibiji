@@ -21,7 +21,7 @@ import java.text.SimpleDateFormat;
 @Aspect
 @Slf4j
 public class ServiceLogAspect {
-    @Pointcut("execution(* com.yxz.wulibibiji.service.*.*(..))")
+    @Pointcut("execution(* com.yxz.wulibibiji.controller.*.*(..))")
     public void pointcut() {
 
     }
@@ -30,6 +30,9 @@ public class ServiceLogAspect {
     public void before(JoinPoint joinPoint) {// 参数：连接点
         // 用户[1.2.3.4],在[xxx],访问了[com.nowcoder.community.service.xxx()].
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes == null) {
+            return;
+        }
         HttpServletRequest request = attributes.getRequest();
         String ip = request.getRemoteHost();
         String now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(DateUtil.date());
