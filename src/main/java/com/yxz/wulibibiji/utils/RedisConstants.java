@@ -24,9 +24,15 @@ public class RedisConstants {
      */
     public static final Long LOGIN_USER_TTL = 48L;
     /**
+     * 单点登录的key
+     */
+    public static final String SINGLE_POINT_KEY = "user:single:point:";
+
+    /**
      * 用户给文章点赞
      */
     public static final String ARTICLE_LIKED_KEY = "article:liked:";
+
     /**
      * 最新文章缓存key
      */

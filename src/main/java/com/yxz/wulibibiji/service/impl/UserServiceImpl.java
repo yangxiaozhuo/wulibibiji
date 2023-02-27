@@ -105,7 +105,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!user.getPassword().equals(password)) {
             return Result.fail("账号或用户名错误,请核实后再试!");
         }
+        //单点登录 email - token
+        String single = SINGLE_POINT_KEY + loginForm.getEmail();
+        String s = stringRedisTemplate.opsForValue().get(single);
+        if (!StrUtil.isBlank(s)) {
+            stringRedisTemplate.delete(LOGIN_USER_KEY + s);
+        }
         String token = UUID.randomUUID().toString(true);
+        stringRedisTemplate.opsForValue().set(single, token, LOGIN_USER_TTL, TimeUnit.HOURS);
         String key = LOGIN_USER_KEY + token;
         Map<String, Object> map = new HashMap<>();
         map.put("email", user.getUserId());
@@ -221,6 +228,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String token = request.getHeader("authorization");
         String key = RedisConstants.LOGIN_USER_KEY + token;
         stringRedisTemplate.delete(key);
+        String single = SINGLE_POINT_KEY + user.getEmail();
+        stringRedisTemplate.delete(single);
         return Result.ok("退出登录成功");
 
     }

@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static com.yxz.wulibibiji.utils.RedisConstants.SINGLE_POINT_KEY;
+
 /**
  * @author yangxiaozhuo
  * @date 2022/11/19
@@ -43,6 +45,8 @@ public class RefreshTokenInterceptor implements HandlerInterceptor {
 
         //刷新token有效期
         stringRedisTemplate.expire(key, RedisConstants.LOGIN_USER_TTL, TimeUnit.HOURS);
+        //刷新token有效期
+        stringRedisTemplate.expire(SINGLE_POINT_KEY + userDTO.getEmail(), RedisConstants.LOGIN_USER_TTL, TimeUnit.HOURS);
         //5.放行
         return true;
     }
