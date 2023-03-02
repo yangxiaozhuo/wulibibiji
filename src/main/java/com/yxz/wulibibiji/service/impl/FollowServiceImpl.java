@@ -1,6 +1,7 @@
 package com.yxz.wulibibiji.service.impl;
 
 import cn.hutool.core.date.DateUtil;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yxz.wulibibiji.Event.EventProducer;
@@ -12,6 +13,7 @@ import com.yxz.wulibibiji.service.FollowService;
 import com.yxz.wulibibiji.utils.UserHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.yxz.wulibibiji.utils.RabbitConstants.TOPIC_FOLLOW;
 
@@ -27,6 +29,7 @@ public class FollowServiceImpl extends ServiceImpl<FollowMapper, Follow> impleme
     private EventProducer eventProducer;
 
     @Override
+    @Transactional
     public Result follow(String userId, boolean isFollow) {
         boolean haveFollowed = isFollow(userId);
         if (isFollow && !haveFollowed) {
@@ -53,6 +56,7 @@ public class FollowServiceImpl extends ServiceImpl<FollowMapper, Follow> impleme
     }
 
     @Override
+    @DS("slave")
     public Result isFollowed(String userId) {
         return Result.ok(isFollow(userId));
     }
@@ -62,6 +66,7 @@ public class FollowServiceImpl extends ServiceImpl<FollowMapper, Follow> impleme
         eventProducer.fireEvent(event);
     }
 
+    @DS("slave")
     private boolean isFollow(String userId) {
         if (UserHolder.getUser() == null) {
             return false;

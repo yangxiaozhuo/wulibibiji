@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.dfa.SensitiveUtil;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -57,6 +58,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     }
 
     @Override
+    @DS("slave")
     public Result getFirstList(Integer current) {
         String email = UserHolder.getUser().getEmail();
         QueryWrapper<Message> wrapper = new QueryWrapper<>();
@@ -66,6 +68,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     }
 
     @Override
+    @DS("slave")
     public Result getUnreadCount(String userId) {
         String fromId = UserHolder.getUser().getEmail();
         String conversionId = "";
@@ -104,6 +107,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     }
 
     @Override
+    @DS("slave")
     public Result unreadAllMessage() {
         UserDTO user = UserHolder.getUser();
         if (user == null) {
@@ -114,6 +118,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     }
 
     @Override
+    @DS("slave")
     public Result unreadPrivateMessage() {
         UserDTO user = UserHolder.getUser();
         if (user == null) {
@@ -124,6 +129,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     }
 
     @Override
+    @DS("slave")
     public Result unreadSystemMessage() {
         UserDTO user = UserHolder.getUser();
         if (user == null) {
@@ -134,6 +140,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     }
 
     @Override
+    @DS("slave")
     public Result getLatestNotice(String topic) {
         if (UserHolder.getUser() == null) {
             return Result.ok(0);
@@ -145,6 +152,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     }
 
     @Override
+    @DS("slave")
     public Result getAllNotice(String topic, Integer current) {
         if (UserHolder.getUser() == null) {
             return Result.ok(0);
@@ -158,6 +166,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     }
 
     @Override
+    @DS("slave")
     public Result getNoticeUnreadCount(String topic) {
         if (UserHolder.getUser() == null) {
             return Result.ok(0);
@@ -168,6 +177,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     }
 
     @Override
+    @DS("slave")
     public Result getMessage(String toUserId, Integer current) {
         String myId = UserHolder.getUser().getEmail();
         String conversionId = "";

@@ -3,6 +3,7 @@ package com.yxz.wulibibiji.service.impl;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.dfa.FoundWord;
 import cn.hutool.dfa.SensitiveUtil;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -22,6 +23,7 @@ import com.yxz.wulibibiji.utils.UserHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -51,6 +53,7 @@ public class SoncommentServiceImpl extends ServiceImpl<SoncommentMapper, Soncomm
     private UserService userService;
 
     @Override
+    @DS("slave")
     public Result querySonComment(Integer current, Integer firstCommentId) {
         QueryWrapper<Soncomment> wrapper = new QueryWrapper<>();
         wrapper.eq("son_comment_parent_id", firstCommentId).orderByAsc("son_comment_created_time");
@@ -85,6 +88,7 @@ public class SoncommentServiceImpl extends ServiceImpl<SoncommentMapper, Soncomm
     }
 
     @Override
+    @Transactional
     public Result createSonComment(SonCommentDTO soncommentDTO) {
         List<FoundWord> foundAllSensitive = SensitiveUtil.getFoundAllSensitive(soncommentDTO.getSonCommentContent());
         if (!foundAllSensitive.isEmpty()) {
@@ -108,6 +112,7 @@ public class SoncommentServiceImpl extends ServiceImpl<SoncommentMapper, Soncomm
     }
 
     @Override
+    @DS("slave")
     public Result detailSonComment(Long id) {
         Soncomment soncomment = getById(id);
         if (soncomment == null) {

@@ -3,7 +3,6 @@ package com.yxz.wulibibiji.service.impl;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileTypeUtil;
 import cn.hutool.core.util.RandomUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.dfa.FoundWord;
 import cn.hutool.dfa.SensitiveUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -29,14 +28,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static com.yxz.wulibibiji.utils.RabbitConstants.TOPIC_LIKE;
-import static com.yxz.wulibibiji.utils.RedisConstants.*;
+import static com.yxz.wulibibiji.utils.RedisConstants.ARTICLE_LIKED_KEY;
 import static com.yxz.wulibibiji.utils.SystemConstants.*;
 
 /**
@@ -67,6 +64,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     private UserService userService;
 
 
+    @DS("slave")
     @Override
     public Result queryNewArticle(Integer current, Integer category) {
         // 1.获取当前页数据
@@ -103,6 +101,21 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Override
     public Result createArticle(ArticleDTO articleDTO) {
         UserDTO user = UserHolder.getUser();
+        Result result = checkArticle(articleDTO);
+        if (SUCCESS_CODE != result.getCode()) {
+            return result;
+        }
+        String categoryName = (String) result.getData();
+        Article article = new Article(null, articleDTO.getArticleTitle(),
+                articleDTO.getArticleContent(),
+                0, 0, 0, DateUtil.date(), DateUtil.date(), null,
+                0, articleDTO.getArticleCategoryId(), user.getEmail(), categoryName);
+        this.save(article);
+        uploadImg(articleDTO.getFiles(), article);
+        return Result.ok();
+    }
+
+    private Result checkArticle(ArticleDTO articleDTO) {
         if (articleDTO.getArticleTitle().length() > 40) {
             return Result.fail("标题最多不允许超过40个字符");
         }
@@ -119,19 +132,44 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (result.getCode() != SUCCESS_CODE) {
             return result;
         }
-        String categoryName = (String) result.getData();
-        Article article = new Article(null, articleDTO.getArticleTitle(),
-                articleDTO.getArticleContent(),
-                0, 0, 0, DateUtil.date(), DateUtil.date(), null,
-                0, articleDTO.getArticleCategoryId(), user.getEmail(), categoryName);
-        this.save(article);
-        Integer id = article.getArticleId();
-        stringRedisTemplate.opsForValue().set(ARTICLE_UPLOAD_IMG_ID + id, "1", ARTICLE_UPLOAD_IMG_ID_TTL, TimeUnit.MINUTES);
-        return Result.ok(id);
+        if (articleDTO.getFiles().size() > 9) {
+            return Result.fail("最多上传9张图片!");
+        }
+        for (int i = 0; i < articleDTO.getFiles().size(); i++) {
+            if (!MyFileUtil.sizeCheck(articleDTO.getFiles().get(i), 2)) {
+                return Result.fail("每张图片大小应为2MB以内!");
+            }
+        }
+        return Result.ok();
     }
 
+
+    private Result uploadImg(List<MultipartFile> files, Article article) {
+        String[] urls = new String[files.size()];
+        try {
+            boolean flag = true;
+            for (int i = 0; i < files.size(); i++) {
+                MultipartFile file = files.get(i);
+                String format = DateUtil.format(DateUtil.date(), "yyyy/MM/");
+                String type = FileTypeUtil.getType(file.getInputStream());
+                String string = article.getArticleId() + RandomUtil.randomString(10 - article.getArticleId().toString().length()) + "." + type;
+                String key = "article/" + format + string;
+                flag = flag && (qiNiuService.uploadFile(file.getInputStream(), key).getCode() == SUCCESS_CODE);
+                urls[i] = IMAGE_UPLOAD_DIR + key + WITH_MARK;
+            }
+            if (flag) {
+                article.setArticleImg(String.join(";", urls));
+                updateById(article);
+                return Result.ok("更新成功");
+            }
+            return Result.fail("更新失败！");
+        } catch (Exception e) {
+            return Result.fail("系统异常！");
+        }
+    }
+
+
     @Override
-    @Transactional
     public Result likeArticle(long id) {
         //1获取登录用户
         String userId = UserHolder.getUser().getEmail();
@@ -160,45 +198,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         eventProducer.fireEvent(event);
     }
 
-    @Override
-    public Result uploadImg(List<MultipartFile> files, Integer id) {
-        if (files.size() > 9) {
-            return Result.fail("最多上传9张图片!");
-        }
-        for (int i = 0; i < files.size(); i++) {
-            if (!MyFileUtil.sizeCheck(files.get(i), 10)) {
-                return Result.fail("每张图片大小应为10MB以内!");
-            }
-        }
-        String s = stringRedisTemplate.opsForValue().get(ARTICLE_UPLOAD_IMG_ID + id);
-        if (StrUtil.isBlank(s)) {
-            return Result.fail("没找到对应的文章!");
-        }
-        Article article = this.getById(id);
-        String[] urls = new String[files.size()];
-        try {
-            boolean flag = true;
-            for (int i = 0; i < files.size(); i++) {
-                MultipartFile file = files.get(i);
-                String format = DateUtil.format(DateUtil.date(), "yyyy/MM/");
-                String type = FileTypeUtil.getType(file.getInputStream());
-                String string = article.getArticleId() + RandomUtil.randomString(10 - article.getArticleId().toString().length()) + "." + type;
-                String key = "article/" + format + string;
-                flag = flag && (qiNiuService.uploadFile(file.getInputStream(), key).getCode() == SUCCESS_CODE);
-                urls[i] = IMAGE_UPLOAD_DIR + key + WITH_MARK;
-            }
-            if (flag) {
-                article.setArticleImg(String.join(";", urls));
-                updateById(article);
-                return Result.ok("更新成功");
-            }
-            return Result.fail("更新失败！");
-        } catch (Exception e) {
-            return Result.fail("系统异常！");
-        }
-    }
 
     @Override
+    @DS("slave")
     public Result allArticle(String useId, int current) {
         User user = userService.getById(useId);
         if (user == null) {
@@ -221,8 +223,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (article == null) {
             return Result.fail("没有这篇文章");
         }
-        article.setArticleViewCount(article.getArticleViewCount() + 1);
-        updateById(article);
+        update().eq("article_id", id).setSql("article_view_count = article_view_count + 1").update();
         isArticleLiked(article);
         return Result.ok(article);
     }

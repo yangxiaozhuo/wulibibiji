@@ -37,6 +37,6 @@ public class ServiceLogAspect {
         String ip = request.getRemoteHost();
         String now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(DateUtil.date());
         String target = joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint.getSignature().getName();// 得到该连接点的类名和方法名
-        log.info(String.format("用户[%s],在[%s],访问了[%s].", ip, now, target));
+//        log.info(String.format("用户[%s],在[%s],访问了[%s].", ip, now, target));
     }
 }

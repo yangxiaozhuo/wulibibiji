@@ -53,16 +53,6 @@ public class ArticleController {
         return articleService.createArticle(articleDTO);
     }
 
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "files", value = "文件列表", dataType = "List<MultipartFile>", required = true),
-            @ApiImplicitParam(name = "articleId", value = "文章id", dataType = "Integer", required = true),
-    })
-    @ApiOperation(value = "上传文章图片", notes = "最多上传9张图片，大小限制10m以内")
-    @PostMapping("/uploadImg")
-    public Result uploadImg(@RequestParam("files") List<MultipartFile> files, @RequestParam("articleId") Integer id) {
-        return articleService.uploadImg(files, id);
-    }
-
     @ApiImplicitParam(name = "id", value = "文章id", dataType = "Integer", required = true)
     @ApiOperation(value = "给文章点赞或取消")
     @PutMapping("/like/{id}")

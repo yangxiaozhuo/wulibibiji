@@ -3,10 +3,12 @@ package com.yxz.wulibibiji.service.impl;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileTypeUtil;
 import cn.hutool.core.lang.UUID;
+import cn.hutool.core.lang.Validator;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestAlgorithm;
 import cn.hutool.crypto.digest.Digester;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yxz.wulibibiji.dto.LoginFormDTO;
 import com.yxz.wulibibiji.dto.Result;
@@ -22,6 +24,7 @@ import com.yxz.wulibibiji.utils.UserHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -60,6 +63,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     //发送验证码
     @Override
+    @DS("slave")
     public Result sentCode(String email) {
         //检查邮箱格式是否正确
         if (email == null || !ckeckEmail(email)) {
@@ -94,6 +98,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
+    @DS("slave")
     public Result login(LoginFormDTO loginForm) {
         //1.验证邮箱 2.验证账号密码 3.不存在或不一致 报错
         String email = loginForm.getEmail();
@@ -121,7 +126,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         map.put("sex", user.getSex().toString());
         stringRedisTemplate.opsForHash().putAll(key, map);
         stringRedisTemplate.expire(key, LOGIN_USER_TTL, TimeUnit.HOURS);
-//        session.setAttribute("authorization", token);
         return Result.ok(token);
     }
 
@@ -149,6 +153,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
+    @Transactional
     public Result uploadAvatar(MultipartFile file, HttpServletRequest request) {
         if (!MyFileUtil.isImg(file)) {
             return Result.fail("只支持jpg、png、webp、jpeg四种图片格式");
@@ -209,6 +214,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
+    @DS("slave")
     public Result quaryUserInfo(String userId) {
         User user = query().eq("user_id", userId).one();
         if (user == null) {
@@ -291,7 +297,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return
      */
     private boolean ckeckEmail(String email) {
-        return email.length() == 18 && "@whut.edu.cn".equals(email.substring(6));
+        return Validator.isEmail(email);
+//        return email.length() == 18 && "@whut.edu.cn".equals(email.substring(6));
     }
 }
 
