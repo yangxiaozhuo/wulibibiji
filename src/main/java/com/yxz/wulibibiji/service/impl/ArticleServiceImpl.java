@@ -181,7 +181,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 String string = article.getArticleId() + RandomUtil.randomString(10 - article.getArticleId().toString().length()) + "." + type;
                 String key = "article/" + format + string;
                 flag = flag && (qiNiuService.uploadFile(file.getInputStream(), key).getCode() == SUCCESS_CODE);
-                urls[i] = IMAGE_UPLOAD_DIR + key + WITH_MARK;
+                urls[i] = IMAGE_UPLOAD_DIR + key;
             }
             if (flag) {
                 article.setArticleImg(String.join(";", urls));
