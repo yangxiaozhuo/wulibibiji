@@ -175,7 +175,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 stringRedisTemplate.opsForHash().put(token, "avatar", url);
                 //删除旧头像
                 if (!oldAvatar.equals(IMAGE_UPLOAD_DIR + DEFAULT_AVATAR)) {
-                    qiNiuService.delete(oldAvatar);
+                    String oldKey = oldAvatar.substring(IMAGE_UPLOAD_DIR.length());
+                    qiNiuService.delete(oldKey);
                 }
                 return Result.ok("更新成功");
             }
