@@ -27,7 +27,7 @@ public interface UserService extends IService<User> {
 
     Result editPassword(String oldPassword, String newPassword);
 
-    Result quaryUserInfo(String userId);
+    Result queryUserInfo(String userId);
 
     Result logout();
 

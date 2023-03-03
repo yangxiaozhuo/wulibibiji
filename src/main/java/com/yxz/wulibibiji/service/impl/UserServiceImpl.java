@@ -215,7 +215,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     @DS("slave")
-    public Result quaryUserInfo(String userId) {
+    public Result queryUserInfo(String userId) {
         User user = query().eq("user_id", userId).one();
         if (user == null) {
             return Result.fail("没有此用户");
