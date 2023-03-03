@@ -45,32 +45,6 @@ spring:
             max-active: 20
             # 配置获取连接等待超时的时间
             max-wait: 60000
-#        slave_2:
-#          driver-class-name: com.mysql.jdbc.Driver
-#          url: jdbc:mysql://1.117.158.138:3306/wulibbj?serverTimezone=Asia/Shanghai&characterEncoding=UTF8&autoReconnect=true&useSSL=false&allowMultiQueries=true
-#            # 数据库用户名&密码
-#          username: root
-#          password: 274fb9bc570f1153
-#          druid:
-#            # 初始连接数
-#            initial-size: 4
-#            # 最小连接池数量
-#            min-idle: 1
-#            # 最大连接池数量
-#            max-active: 20
-#            # 配置获取连接等待超时的时间
-#            max-wait: 60000
-
-  redis:
-    host: 1.117.158.138
-    port: 6300
-    password: 9hcbq5d8m5yo44c
-    timeout: 6000
-    jedis:
-      pool:
-        max-active: 50
-        max-idle: 20
-        min-idle: 2
 
   #邮件
   mail:
@@ -99,15 +73,14 @@ spring:
     active: dev
 #    active: prod
 
-  cloud:
-    sentinel:
-      transport:
-        port: 8082
-        dashboard: localhost:8080
-    nacos:
-      discovery:
-        server-addr: localhost:8848
-
+#  cloud:
+#    sentinel:
+#      transport:
+#        port: 8082
+#        dashboard: localhost:8080
+#    nacos:
+#      discovery:
+#        server-addr: localhost:8848
 
 
 # 应用服务 WEB 访问端口

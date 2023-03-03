@@ -1,0 +1,10 @@
+masterSlaveServersConfig:
+  # 设置主节点地址和密码
+  masterAddress: "redis://1.117.158.138:6300"
+  password: "9hcbq5d8m5yo44c"
+  # 添加从节点地址和密码，支持添加多个从节点
+  slaveAddresses:
+    - "redis://124.71.183.56:6300"
+  # 读写分离模式
+  readMode: "MASTER_SLAVE"
+  subscriptionMode: "SLAVE"

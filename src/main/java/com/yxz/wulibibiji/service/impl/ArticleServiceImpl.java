@@ -25,8 +25,8 @@ import com.yxz.wulibibiji.service.other.IQiNiuService;
 import com.yxz.wulibibiji.utils.MyFileUtil;
 import com.yxz.wulibibiji.utils.UserHolder;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -46,7 +46,7 @@ import static com.yxz.wulibibiji.utils.SystemConstants.*;
 public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> implements ArticleService {
 
     @Autowired
-    private StringRedisTemplate stringRedisTemplate;
+    private RedissonClient redissonClient;
 
     @Autowired
     private CategoryService categoryService;
@@ -175,19 +175,19 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         String userId = UserHolder.getUser().getEmail();
         //2.判断当前用户是否已经点赞
         String key = ARTICLE_LIKED_KEY + id;
-        Double score = stringRedisTemplate.opsForZSet().score(key, userId);
+        Double score = redissonClient.getScoredSortedSet(key).getScore(userId);
         if (score == null) {
             //3.如果未点赞，可以点赞
             boolean isSuccess = update().setSql("article_like_count = article_like_count + 1").eq("article_id", id).update();
             if (isSuccess) {
-                stringRedisTemplate.opsForZSet().add(key, userId, System.currentTimeMillis());
+                redissonClient.getScoredSortedSet(key).add(System.currentTimeMillis(), userId);
             }
             sentMq(id + "", getById(id).getArticleUserId());
         } else {
             //已点赞 可以取消
             boolean isSuccess = update().setSql("article_like_count = article_like_count - 1").eq("article_id", id).update();
             if (isSuccess) {
-                stringRedisTemplate.opsForZSet().remove(key, userId);
+                redissonClient.getScoredSortedSet(key).remove(userId);
             }
         }
         return Result.ok();
@@ -236,7 +236,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         }
         String userId = UserHolder.getUser().getEmail();
         String key = ARTICLE_LIKED_KEY + article.getArticleId();
-        Double score = stringRedisTemplate.opsForZSet().score(key, userId);
+        Double score = redissonClient.getScoredSortedSet(key).getScore(userId);
         article.setLiked(score != null);
     }
 }

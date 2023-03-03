@@ -19,12 +19,11 @@ import com.yxz.wulibibiji.service.ArticleService;
 import com.yxz.wulibibiji.service.FirstcommentService;
 import com.yxz.wulibibiji.utils.SystemConstants;
 import com.yxz.wulibibiji.utils.UserHolder;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 import static com.yxz.wulibibiji.utils.RabbitConstants.TOPIC_COMMENT;
@@ -38,8 +37,8 @@ import static com.yxz.wulibibiji.utils.RedisConstants.FIRST_COMMENT_LIKED_KEY;
 @Service
 public class FirstcommentServiceImpl extends ServiceImpl<FirstcommentMapper, Firstcomment> implements FirstcommentService {
 
-    @Resource
-    private StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private RedissonClient redissonClient;
 
     @Autowired
     private FirstcommentMapper firstcommentMapper;
@@ -83,18 +82,18 @@ public class FirstcommentServiceImpl extends ServiceImpl<FirstcommentMapper, Fir
         String userId = UserHolder.getUser().getEmail();
         //2.判断当前用户是否已经点赞
         String key = FIRST_COMMENT_LIKED_KEY + id;
-        Double score = stringRedisTemplate.opsForZSet().score(key, userId);
+        Double score = redissonClient.getScoredSortedSet(key).getScore(userId);
         if (score == null) {
             //3.如果未点赞，可以点赞
             boolean isSuccess = update().setSql("first_comment_like_count = first_comment_like_count + 1").eq("first_comment_id", id).update();
             if (isSuccess) {
-                stringRedisTemplate.opsForZSet().add(key, userId, System.currentTimeMillis());
+                redissonClient.getScoredSortedSet(key).add(System.currentTimeMillis(), userId);
             }
         } else {
             //已点赞 可以取消
             boolean isSuccess = update().setSql("first_comment_like_count = first_comment_like_count - 1").eq("first_comment_id", id).update();
             if (isSuccess) {
-                stringRedisTemplate.opsForZSet().remove(key, userId);
+                redissonClient.getScoredSortedSet(key).remove(userId);
             }
         }
         return Result.ok();
@@ -153,7 +152,7 @@ public class FirstcommentServiceImpl extends ServiceImpl<FirstcommentMapper, Fir
         }
         String userId = UserHolder.getUser().getEmail();
         String key = FIRST_COMMENT_LIKED_KEY + firstcomment.getFirstCommentId();
-        Double score = stringRedisTemplate.opsForZSet().score(key, userId);
+        Double score = redissonClient.getScoredSortedSet(key).getScore(userId);
         firstcomment.setLiked(score != null);
     }
 }

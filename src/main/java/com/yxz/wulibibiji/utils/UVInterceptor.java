@@ -1,7 +1,7 @@
 package com.yxz.wulibibiji.utils;
 
 import cn.hutool.core.date.DateUtil;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.redisson.api.RedissonClient;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,17 +16,17 @@ import static com.yxz.wulibibiji.utils.RedisConstants.SYSTEM_DAY_VISIT;
  */
 public class UVInterceptor implements HandlerInterceptor {
 
-    private StringRedisTemplate stringRedisTemplate;
+    private RedissonClient redissonClient;
 
-    public UVInterceptor(StringRedisTemplate stringRedisTemplate) {
-        this.stringRedisTemplate = stringRedisTemplate;
+    public UVInterceptor(RedissonClient redissonClient) {
+        this.redissonClient = redissonClient;
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String key = SYSTEM_DAY_VISIT + DateUtil.today();
-        stringRedisTemplate.opsForValue().increment(key);
-        stringRedisTemplate.opsForValue().increment(SYSTEM_ALL_VISIT);
+        redissonClient.getAtomicLong(key).incrementAndGet();
+        redissonClient.getAtomicLong(SYSTEM_ALL_VISIT).incrementAndGet();
         return true;
     }
 
