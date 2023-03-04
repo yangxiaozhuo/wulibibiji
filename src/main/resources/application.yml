@@ -45,6 +45,20 @@ spring:
             max-active: 20
             # 配置获取连接等待超时的时间
             max-wait: 60000
+        slave_2:
+          driver-class-name: com.mysql.jdbc.Driver
+          url: jdbc:mysql://1.117.158.138:3307/wulibbj?serverTimezone=Asia/Shanghai&characterEncoding=UTF8&autoReconnect=true&useSSL=false&allowMultiQueries=true
+          username: root
+          password: jxw78d3xl6r0wy7jb
+          druid:
+            # 初始连接数
+            initial-size: 4
+            # 最小连接池数量
+            min-idle: 1
+            # 最大连接池数量
+            max-active: 20
+            # 配置获取连接等待超时的时间
+            max-wait: 60000
 
   #邮件
   mail:
