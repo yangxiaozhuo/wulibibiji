@@ -81,8 +81,10 @@ public class ArticleController {
         return articleService.allArticle(useId, current);
     }
 
+    @ApiImplicitParam(name = "key", value = "检索关键字", dataType = "Sting", required = false)
+    @ApiOperation(value = "查询文章", notes = "返回文章简单信息和id")
     @GetMapping("/search")
-    public Result search(String key) {
+    public Result search(@RequestParam("key") String key) {
         return esArticleService.search(key);
     }
 }

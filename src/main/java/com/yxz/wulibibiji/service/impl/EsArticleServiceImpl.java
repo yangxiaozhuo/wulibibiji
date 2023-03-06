@@ -18,6 +18,8 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import static com.yxz.wulibibiji.utils.EsUtil.HIGHLIGHTBUILDER;
+
 
 /**
  * @author yangxiaozhuo
@@ -44,18 +46,6 @@ public class EsArticleServiceImpl implements EsArticleService {
 
     @Override
     public Result search(String key) {
-        HighlightBuilder highlightBuilder = new HighlightBuilder();
-        //设置高亮作用于articleTitle和articleContent 且设置片段大小为
-        //fragmentSize默认是100，如果你不设置，并且你查询的这个关键字里面有一大段话
-        //比如这段话开头和结尾包含（关键字）,那么在高亮返回的数组中只有开头和结尾，中间的省略了
-        //为了防止这种情况，更具自己的字段长度去匹配此处的长度，不宜过大
-        highlightBuilder.field("articleTitle"); //.fragmentSize(20);
-        highlightBuilder.field("articleContent"); //.fragmentSize(20);
-        //设置高亮前置标签
-        highlightBuilder.preTags("<span style='color:red'>");
-        //设置高亮后置标签
-        highlightBuilder.postTags("</span>");
-
         NativeSearchQueryBuilder query = new NativeSearchQueryBuilder();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         if (StrUtil.isNotBlank(key)) {
@@ -63,7 +53,7 @@ public class EsArticleServiceImpl implements EsArticleService {
             boolQueryBuilder.should(QueryBuilders.matchQuery("articleContent", key));
         }
         //分页
-        query.withQuery(boolQueryBuilder).withPageable(PageRequest.of(0, 10)).withHighlightBuilder(highlightBuilder);
+        query.withQuery(boolQueryBuilder).withPageable(PageRequest.of(0, 10)).withHighlightBuilder(HIGHLIGHTBUILDER);
         SearchHits<EsArticleDTO> searchHits = elasticsearchRestTemplate.search(query.build(), EsArticleDTO.class);
         return Result.ok(searchHits.getSearchHits());
     }

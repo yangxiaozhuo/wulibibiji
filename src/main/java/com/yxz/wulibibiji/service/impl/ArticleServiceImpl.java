@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yxz.wulibibiji.Event.EventProducer;
+import com.yxz.wulibibiji.config.MyThreadPool;
 import com.yxz.wulibibiji.dto.ArticleDTO;
 import com.yxz.wulibibiji.dto.Event;
 import com.yxz.wulibibiji.dto.Result;
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.yxz.wulibibiji.utils.RabbitConstants.TOPIC_LIKE;
 import static com.yxz.wulibibiji.utils.RedisConstants.ARTICLE_LIKED_KEY;
@@ -65,6 +67,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Autowired
     private EsArticleService esArticleService;
+
+    @Autowired
+    private ThreadPoolExecutor threadPoolExecutor;
 
 
     @DS("slave")
@@ -113,13 +118,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
                 articleDTO.getArticleContent(),
                 0, 0, 0, DateUtil.date(), DateUtil.date(), null,
                 0, articleDTO.getArticleCategoryId(), user.getEmail(), categoryName);
-        new Thread(){
+        this.save(article);
+        threadPoolExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 esArticleService.addArticle(article);
             }
-        }.start();
-        this.save(article);
+        });
         uploadImg(articleDTO.getFiles(), article);
         return Result.ok();
     }
