@@ -3,6 +3,7 @@ package com.yxz.wulibibiji.controller;
 import com.yxz.wulibibiji.dto.ArticleDTO;
 import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.service.ArticleService;
+import com.yxz.wulibibiji.service.EsArticleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -23,6 +24,9 @@ import java.util.List;
 public class ArticleController {
     @Resource
     private ArticleService articleService;
+
+    @Resource
+    private EsArticleService esArticleService;
 
     @ApiImplicitParams({
             @ApiImplicitParam(name = "category", value = "分类id", dataType = "Integer", required = false),
@@ -75,5 +79,10 @@ public class ArticleController {
     @GetMapping("/all")
     public Result allArticle(@RequestParam("useId") String useId, @RequestParam(value = "current", defaultValue = "1") Integer current) {
         return articleService.allArticle(useId, current);
+    }
+
+    @GetMapping("/search")
+    public Result search(String key) {
+        return esArticleService.search(key);
     }
 }

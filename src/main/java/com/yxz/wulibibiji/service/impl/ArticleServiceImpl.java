@@ -20,6 +20,7 @@ import com.yxz.wulibibiji.entity.User;
 import com.yxz.wulibibiji.mapper.ArticleMapper;
 import com.yxz.wulibibiji.service.ArticleService;
 import com.yxz.wulibibiji.service.CategoryService;
+import com.yxz.wulibibiji.service.EsArticleService;
 import com.yxz.wulibibiji.service.UserService;
 import com.yxz.wulibibiji.service.other.IQiNiuService;
 import com.yxz.wulibibiji.utils.MyFileUtil;
@@ -42,7 +43,6 @@ import static com.yxz.wulibibiji.utils.SystemConstants.*;
  * @createDate 2022-11-18 22:24:23
  */
 @Service
-@Slf4j
 public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> implements ArticleService {
 
     @Autowired
@@ -62,6 +62,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private EsArticleService esArticleService;
 
 
     @DS("slave")
@@ -105,11 +108,17 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (SUCCESS_CODE != result.getCode()) {
             return result;
         }
-        String categoryName = (String) result.getData();
+        String categoryName = (String)categoryService.getCategoryById(articleDTO.getArticleCategoryId()).getData();
         Article article = new Article(null, articleDTO.getArticleTitle(),
                 articleDTO.getArticleContent(),
                 0, 0, 0, DateUtil.date(), DateUtil.date(), null,
                 0, articleDTO.getArticleCategoryId(), user.getEmail(), categoryName);
+        new Thread(){
+            @Override
+            public void run() {
+                esArticleService.addArticle(article);
+            }
+        }.start();
         this.save(article);
         uploadImg(articleDTO.getFiles(), article);
         return Result.ok();
@@ -132,12 +141,14 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (result.getCode() != SUCCESS_CODE) {
             return result;
         }
-        if (articleDTO.getFiles().size() > 9) {
-            return Result.fail("最多上传9张图片!");
-        }
-        for (int i = 0; i < articleDTO.getFiles().size(); i++) {
-            if (!MyFileUtil.sizeCheck(articleDTO.getFiles().get(i), 2)) {
-                return Result.fail("每张图片大小应为2MB以内!");
+        if (articleDTO.getFiles() != null) {
+            if (articleDTO.getFiles().size() > 9) {
+                return Result.fail("最多上传9张图片!");
+            }
+            for (int i = 0; i < articleDTO.getFiles().size(); i++) {
+                if (!MyFileUtil.sizeCheck(articleDTO.getFiles().get(i), 2)) {
+                    return Result.fail("每张图片大小应为2MB以内!");
+                }
             }
         }
         return Result.ok();
@@ -145,6 +156,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
 
     private Result uploadImg(List<MultipartFile> files, Article article) {
+        if (files == null) {
+            return Result.ok();
+        }
         String[] urls = new String[files.size()];
         try {
             boolean flag = true;

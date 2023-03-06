@@ -75,7 +75,7 @@
             <artifactId>mybatis-plus-boot-starter</artifactId>
             <version>3.4.3</version>
         </dependency>
-<!--        多数据源-->
+<!--        mysql多数据源-->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
@@ -85,6 +85,11 @@
             <groupId>com.alibaba</groupId>
             <artifactId>druid-spring-boot-starter</artifactId>
             <version>1.2.6</version>
+        </dependency>
+<!--        elasticsearch-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
         </dependency>
         <!--seata-->
 <!--        <dependency>-->
@@ -104,6 +109,7 @@
 <!--            <version>0.9.0</version>-->
 <!--        </dependency>-->
 <!--        rabbitmq-->
+<!--        rabbitmq-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-amqp</artifactId>
@@ -118,6 +124,7 @@
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
         </dependency>
+<!--        redis客户端-->
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson</artifactId>

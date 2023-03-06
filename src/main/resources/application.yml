@@ -95,7 +95,10 @@ spring:
 #    nacos:
 #      discovery:
 #        server-addr: localhost:8848
-
+  elasticsearch:
+    rest:
+      uris: 124.71.183.56:9200
+      connection-timeout: 600
 
 # 应用服务 WEB 访问端口
 server:
@@ -111,7 +114,7 @@ mybatis-plus:
 logging:
   config: classpath:logback-spring.xml
   level:
-    com.yxz.wulibibiji: info
+    com.yxz.wulibibiji: debug
 
 
 #七牛配置

@@ -29,7 +29,7 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/user/sentCode",
                         "/user/create",
                         "/user/login",
-                        "/user/quary/**",
+                        "/user/query/**",
                         "/user/isLogin",
                         "/uv/**",
                         "/sonComment/getList",
@@ -42,7 +42,8 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/article/new",
                         "/article/hot",
                         "/article/detail/**",
-                        "/article/all"
+                        "/article/all",
+                        "/article/search"
                 ).order(1);
         registry.addInterceptor(new RefreshTokenInterceptor(redissonClient)).addPathPatterns("/**").order(0);
         registry.addInterceptor(new UVInterceptor(redissonClient)).addPathPatterns("/article/new").order(0);
