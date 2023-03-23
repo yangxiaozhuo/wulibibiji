@@ -88,7 +88,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String passwordMd5 = md5.digestHex(loginFormDTO.getPassword());
         User user = new User(loginFormDTO.getEmail(),
                 USER_NICK_NAME_PREFIX + loginFormDTO.getEmail().substring(0, 6),
-                loginFormDTO.getPassword(), passwordMd5, DEFAULT_AVATAR, DateUtil.date(), 1);
+                loginFormDTO.getPassword(), passwordMd5, IMAGE_UPLOAD_DIR + DEFAULT_AVATAR, DateUtil.date(), 1);
         save(user);
         return Result.ok();
     }
