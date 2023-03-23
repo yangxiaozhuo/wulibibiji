@@ -78,12 +78,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (category != 0) {
             wrapper.eq("article_category_id", category);
         }
-        wrapper.last("limit " + (current * 10 - 1) + ", 1");
+        int count = this.count(wrapper);
+        wrapper.last("limit " + Math.min(count - 1, (current * 10 - 1))  + ", 1");
         wrapper.select("created_time");
         Article one = getOne(wrapper);
         wrapper = new QueryWrapper<>();
         wrapper.ge("created_time", one.getCreatedTime()).orderByAsc("created_time");
-        IPage<Article> page = articleMapper.listJoinInfoPages(new Page<>(1, MAX_PAGE_SIZE), wrapper);
+        IPage<Article> page = articleMapper.listJoinInfoPages(new Page<>(1, MAX_PAGE_SIZE,false), wrapper);
+        page.setTotal(count);
+        page.setCurrent(current);
         int size = page.getRecords().size();
         for (int i = 0; i < size / 2; i++) {
             Article temp = page.getRecords().get(i);
