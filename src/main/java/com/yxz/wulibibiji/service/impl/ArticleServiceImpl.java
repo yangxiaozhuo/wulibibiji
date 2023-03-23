@@ -11,7 +11,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yxz.wulibibiji.Event.EventProducer;
-import com.yxz.wulibibiji.config.MyThreadPool;
 import com.yxz.wulibibiji.dto.ArticleDTO;
 import com.yxz.wulibibiji.dto.Event;
 import com.yxz.wulibibiji.dto.Result;
@@ -26,7 +25,6 @@ import com.yxz.wulibibiji.service.UserService;
 import com.yxz.wulibibiji.service.other.IQiNiuService;
 import com.yxz.wulibibiji.utils.MyFileUtil;
 import com.yxz.wulibibiji.utils.UserHolder;
-import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -75,13 +73,23 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @DS("slave")
     @Override
     public Result queryNewArticle(Integer current, Integer category) {
-        // 1.获取当前页数据
         QueryWrapper<Article> wrapper = new QueryWrapper<>();
-        wrapper.eq("is_deleted", 0).orderByDesc("created_time");
+        wrapper.orderByDesc("created_time");
         if (category != 0) {
             wrapper.eq("article_category_id", category);
         }
-        IPage<Article> page = articleMapper.listJoinInfoPages(new Page<>(current, MAX_PAGE_SIZE), wrapper);
+        wrapper.last("limit " + (current * 10 - 1) + ", 1");
+        wrapper.select("created_time");
+        Article one = getOne(wrapper);
+        wrapper = new QueryWrapper<>();
+        wrapper.ge("created_time", one.getCreatedTime()).orderByAsc("created_time");
+        IPage<Article> page = articleMapper.listJoinInfoPages(new Page<>(1, MAX_PAGE_SIZE), wrapper);
+        int size = page.getRecords().size();
+        for (int i = 0; i < size / 2; i++) {
+            Article temp = page.getRecords().get(i);
+            page.getRecords().set(i, page.getRecords().get(size - i - 1));
+            page.getRecords().set(size - i - 1, temp);
+        }
         page.getRecords().forEach(article -> {
             this.isArticleLiked(article);
         });
@@ -92,7 +100,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Override
     public Result queryHotArticle(Integer current, Integer category) {
         QueryWrapper<Article> wrapper = new QueryWrapper<>();
-        wrapper.eq("is_deleted", 0).ge("created_time", DateUtil.lastMonth()).orderByDesc("article_like_count").orderByDesc("created_time");
+        wrapper.ge("created_time", DateUtil.lastMonth()).orderByDesc("article_like_count").orderByDesc("created_time");
         if (category != 0) {
             wrapper.eq("article_category_id", category);
         }
@@ -113,7 +121,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (SUCCESS_CODE != result.getCode()) {
             return result;
         }
-        String categoryName = (String)categoryService.getCategoryById(articleDTO.getArticleCategoryId()).getData();
+        String categoryName = (String) categoryService.getCategoryById(articleDTO.getArticleCategoryId()).getData();
         Article article = new Article(null, articleDTO.getArticleTitle(),
                 articleDTO.getArticleContent(),
                 0, 0, 0, DateUtil.date(), DateUtil.date(), null,

@@ -59,7 +59,7 @@ public class Article implements Serializable {
     /**
      * 逻辑删除0表示未删除，1表示删除
      */
-    @TableLogic
+//    @TableLogic
     private Integer isDeleted;
 
     /**
