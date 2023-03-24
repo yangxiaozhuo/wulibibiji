@@ -114,7 +114,7 @@ mybatis-plus:
 logging:
   config: classpath:logback-spring.xml
   level:
-    com.yxz.wulibibiji: debug
+    com.yxz.wulibibiji: info
 
 
 #七牛配置

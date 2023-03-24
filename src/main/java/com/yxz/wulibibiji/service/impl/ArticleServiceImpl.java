@@ -79,6 +79,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             wrapper.eq("article_category_id", category);
         }
         int count = this.count(wrapper);
+        if(count == 0) {
+            return Result.ok();
+        }
         wrapper.last("limit " + Math.min(count - 1, (current * 10 - 1))  + ", 1");
         wrapper.select("created_time");
         Article one = getOne(wrapper);

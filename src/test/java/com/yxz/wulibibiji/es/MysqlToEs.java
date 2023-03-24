@@ -1,9 +1,5 @@
 package com.yxz.wulibibiji.es;
 
-import cn.hutool.core.bean.BeanUtil;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.yxz.wulibibiji.dto.EsArticleDTO;
-import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.entity.Article;
 import com.yxz.wulibibiji.service.ArticleService;
 import com.yxz.wulibibiji.service.impl.EsArticleServiceImpl;
@@ -11,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,21 +23,59 @@ public class MysqlToEs {
     private EsArticleServiceImpl esService;
 
     @Test
-    void fun() {
-        ArrayList<EsArticleDTO> esArticles = new ArrayList<>();
-        int current = 1;
+    void fun() throws InterruptedException {
+        boolean t = esService.delete("article");
+        if (!t) {
+            System.out.println("失败");
+            return;
+        }
+        //1 - 100_0000
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                add(1, 333333);
+            }
+        });
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                add(333334, 666666);
+            }
+        });
+        Thread t3 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                add(666666, 1000000);
+            }
+        });
+        t1.start();
+        t2.start();
+        t3.start();
+        t1.join();
+        t2.join();
+        t3.join();
+        System.out.println("over");
+    }
+
+    private void add(int start, int end) {
+        int l = start;
+        int r = start + 50;
+        int t = 1;
         while (true) {
-            Result result = articleService.queryNewArticle(current, 0);
-            IPage<Article> data = (IPage<Article>) result.getData();
-            List<Article> records = data.getRecords();
-            if (records.size()==0) {
+            List<Article> list = articleService.query().ge("article_id", l).le("article_id", r).list();
+            esService.addArticleAll(list);
+            l = r + 1;
+            r = l + 50;
+            if (l > end) {
                 break;
             }
-            esArticles.addAll(BeanUtil.copyToList(records, EsArticleDTO.class));
-            current++;
+            if (((l - start) * 100 / (end - start)) > t) {
+                System.out.println("已经到" + l);
+                System.out.println(t);
+                t++;
+            }
         }
-//        System.out.println(esArticles.toString());
-//        System.out.println(esService.addArticleAll(esArticles));
+        System.out.println(start + "===>" + end + "over");
     }
 
 }
