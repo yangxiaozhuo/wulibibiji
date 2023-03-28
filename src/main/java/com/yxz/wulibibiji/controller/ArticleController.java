@@ -53,8 +53,9 @@ public class ArticleController {
     @ApiImplicitParam(name = "articleDTO", value = "新增的文章对象", dataType = "ArticleDTO", required = true)
     @ApiOperation(value = "发布文章", notes = "直接上传所有信息")
     @PostMapping("/create")
-    public Result createArticle(@RequestBody ArticleDTO articleDTO) {
-        return articleService.createArticle(articleDTO);
+    public Result createArticle(@RequestParam String articleTitle,@RequestParam String articleContent,
+                                @RequestParam Integer articleCategoryId,@RequestParam(value = "files", required = false) List<MultipartFile> files) {
+        return articleService.createArticle(new ArticleDTO(articleTitle,articleContent,articleCategoryId,files));
     }
 
     @ApiImplicitParam(name = "id", value = "文章id", dataType = "Integer", required = true)

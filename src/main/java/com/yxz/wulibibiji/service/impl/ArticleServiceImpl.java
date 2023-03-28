@@ -79,15 +79,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             wrapper.eq("article_category_id", category);
         }
         int count = this.count(wrapper);
-        if(count == 0) {
+        if (count == 0) {
             return Result.ok();
         }
-        wrapper.last("limit " + Math.min(count - 1, (current * 10 - 1))  + ", 1");
+        wrapper.last("limit " + Math.min(count - 1, (current * 10 - 1)) + ", 1");
         wrapper.select("created_time");
         Article one = getOne(wrapper);
         wrapper = new QueryWrapper<>();
         wrapper.ge("created_time", one.getCreatedTime()).orderByAsc("created_time");
-        IPage<Article> page = articleMapper.listJoinInfoPages(new Page<>(1, MAX_PAGE_SIZE,false), wrapper);
+        IPage<Article> page = articleMapper.listJoinInfoPages(new Page<>(1, MAX_PAGE_SIZE, false), wrapper);
         page.setTotal(count);
         page.setCurrent(current);
         int size = page.getRecords().size();
