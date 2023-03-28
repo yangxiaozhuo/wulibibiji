@@ -51,7 +51,7 @@ public class ArticleController {
     }
 
     @ApiImplicitParam(name = "articleDTO", value = "新增的文章对象", dataType = "ArticleDTO", required = true)
-    @ApiOperation(value = "发布文章", notes = "返回文章的id，凭此id上传图片")
+    @ApiOperation(value = "发布文章", notes = "直接上传所有信息")
     @PostMapping("/create")
     public Result createArticle(@RequestBody ArticleDTO articleDTO) {
         return articleService.createArticle(articleDTO);
