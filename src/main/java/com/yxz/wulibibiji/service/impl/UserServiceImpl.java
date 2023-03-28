@@ -173,7 +173,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 //更新数据库
                 User user = getById(userDTO.getEmail());
                 String oldAvatar = user.getAvatar();
-                String url = IMAGE_UPLOAD_DIR + key + WITHOUT_MARK;
+                String url = IMAGE_UPLOAD_DIR + key;
                 user.setAvatar(url);
                 updateById(user);
                 //更新redis
@@ -181,7 +181,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 redissonClient.getMap(token).put("avatar", url);
                 //删除旧头像
                 if (!oldAvatar.equals(IMAGE_UPLOAD_DIR + DEFAULT_AVATAR)) {
-                    String oldKey = oldAvatar.substring(IMAGE_UPLOAD_DIR.length(), oldAvatar.length() - WITHOUT_MARK.length());
+                    String oldKey = oldAvatar.substring(IMAGE_UPLOAD_DIR.length());
                     qiNiuService.delete(oldKey);
                 }
                 return Result.ok("更新成功");
