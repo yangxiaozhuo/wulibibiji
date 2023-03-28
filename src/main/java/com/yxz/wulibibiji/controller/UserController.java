@@ -75,9 +75,9 @@ public class UserController {
 
     @ApiImplicitParam(name = "userId", value = "用户id", dataType = "String", required = true)
     @ApiOperation(value = "通过id查用户信息", notes = "传入id（即email），返回头像地址，nickname等基本信息")
-    @GetMapping("/quary/{userId}")
-    public Result quaryUserInfo(@PathVariable("userId") String userId) {
-        return userService.quaryUserInfo(userId);
+    @GetMapping("/query/{userId}")
+    public Result queryUserInfo(@PathVariable("userId") String userId) {
+        return userService.queryUserInfo(userId);
     }
 
     @ApiOperation(value = "查询用户是否登录", notes = "不需要参数,传入token即可。返回true || false")

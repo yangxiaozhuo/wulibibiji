@@ -3,12 +3,12 @@ package com.yxz.wulibibiji.utils;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.yxz.wulibibiji.dto.UserDTO;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.redisson.api.RMap;
+import org.redisson.api.RedissonClient;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.yxz.wulibibiji.utils.RedisConstants.SINGLE_POINT_KEY;
@@ -19,10 +19,10 @@ import static com.yxz.wulibibiji.utils.RedisConstants.SINGLE_POINT_KEY;
  */
 public class RefreshTokenInterceptor implements HandlerInterceptor {
 
-    private StringRedisTemplate stringRedisTemplate;
+    private RedissonClient redissonClient;
 
-    public RefreshTokenInterceptor(StringRedisTemplate stringRedisTemplate) {
-        this.stringRedisTemplate = stringRedisTemplate;
+    public RefreshTokenInterceptor(RedissonClient redissonClient) {
+        this.redissonClient = redissonClient;
     }
 
     @Override
@@ -34,7 +34,7 @@ public class RefreshTokenInterceptor implements HandlerInterceptor {
         }
         //2。获取redis的用户信息
         String key = RedisConstants.LOGIN_USER_KEY + token;
-        Map<Object, Object> userMap = stringRedisTemplate.opsForHash().entries(key);
+        RMap<Object, Object> userMap = redissonClient.getMap(key);
         //3.判断用户是不是存在
         if (userMap.isEmpty()) {
             return true;
@@ -44,9 +44,9 @@ public class RefreshTokenInterceptor implements HandlerInterceptor {
         UserHolder.saveUser(userDTO);
 
         //刷新token有效期
-        stringRedisTemplate.expire(key, RedisConstants.LOGIN_USER_TTL, TimeUnit.HOURS);
+        redissonClient.getMap(key).expire(RedisConstants.LOGIN_USER_TTL, TimeUnit.HOURS);
         //刷新token有效期
-        stringRedisTemplate.expire(SINGLE_POINT_KEY + userDTO.getEmail(), RedisConstants.LOGIN_USER_TTL, TimeUnit.HOURS);
+        redissonClient.getMap(SINGLE_POINT_KEY + userDTO.getEmail()).expire(RedisConstants.LOGIN_USER_TTL, TimeUnit.HOURS);
         //5.放行
         return true;
     }

@@ -3,32 +3,62 @@ spring:
   application:
     name: wulibibiji
 
-  datasource:
-    # 数据库驱动：
-    driver-class-name: com.mysql.jdbc.Driver
-    # 数据源名称
-    name: defaultDataSource
-    # 数据库连接地址
-    url: jdbc:mysql://1.117.158.138:3306/wulibbj?serverTimezone=Asia/Shanghai&characterEncoding=UTF8&autoReconnect=true&useSSL=false&allowMultiQueries=true
-    # 数据库用户名&密码
-    username: root
-    password: 274fb9bc570f1153
-    hikari:
-      minimum-idle: 3
-      maximum-pool-size: 10
-      max-lifetime: 30000
-      connection-test-query: SELECT 1
+  autoconfigure:
+    exclude: com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure
 
-  redis:
-    host: 1.117.158.138
-    port: 6379
-    password: 123321
-    timeout: 6000
-    jedis:
-      pool:
-        max-active: 50
-        max-idle: 20
-        min-idle: 2
+  datasource:
+    druid:
+      stat-view-servlet:
+        enabled: true
+        login-password: admin
+        login-username: admin
+    #    type: com.alibaba.druid.pool.DruidDataSource
+    dynamic:
+      primary: master   #默认数据源
+      strict: false #严格匹配数据源,默认false. true未匹配到指定数据源时抛异常,false使用默认数据源
+      datasource:
+        master:
+          driver-class-name: com.mysql.jdbc.Driver
+          url: jdbc:mysql://1.117.158.138:3307/wulibbj?serverTimezone=Asia/Shanghai&characterEncoding=UTF8&autoReconnect=true&useSSL=false&allowMultiQueries=true
+          username: root
+          password: jxw78d3xl6r0wy7jb
+          druid:
+            # 初始连接数
+            initial-size: 4
+            # 最小连接池数量
+            min-idle: 1
+            # 最大连接池数量
+            max-active: 20
+            # 配置获取连接等待超时的时间
+            max-wait: 60000
+        slave_1:
+          driver-class-name: com.mysql.jdbc.Driver
+          url: jdbc:mysql://124.71.183.56:3307/wulibbj?serverTimezone=Asia/Shanghai&characterEncoding=UTF8&autoReconnect=true&useSSL=false&allowMultiQueries=true
+          username: root
+          password: jxw78d3xl6r0wy7jb
+          druid:
+            # 初始连接数
+            initial-size: 4
+            # 最小连接池数量
+            min-idle: 1
+            # 最大连接池数量
+            max-active: 20
+            # 配置获取连接等待超时的时间
+            max-wait: 60000
+        slave_2:
+          driver-class-name: com.mysql.jdbc.Driver
+          url: jdbc:mysql://1.117.158.138:3307/wulibbj?serverTimezone=Asia/Shanghai&characterEncoding=UTF8&autoReconnect=true&useSSL=false&allowMultiQueries=true
+          username: root
+          password: jxw78d3xl6r0wy7jb
+          druid:
+            # 初始连接数
+            initial-size: 4
+            # 最小连接池数量
+            min-idle: 1
+            # 最大连接池数量
+            max-active: 20
+            # 配置获取连接等待超时的时间
+            max-wait: 60000
 
   #邮件
   mail:
@@ -56,13 +86,27 @@ spring:
   profiles:
     active: dev
 #    active: prod
+
+#  cloud:
+#    sentinel:
+#      transport:
+#        port: 8082
+#        dashboard: localhost:8080
+#    nacos:
+#      discovery:
+#        server-addr: localhost:8848
+  elasticsearch:
+    rest:
+      uris: 124.71.183.56:9200
+      connection-timeout: 600
+
 # 应用服务 WEB 访问端口
 server:
   port: 8081
 
 #下面这些内容是为了让MyBatis映射
 #指定Mybatis的Mapper文件
-mybatis:
+mybatis-plus:
   mapper-locations: classpath:mapper/*xml
   type-aliases-package: com.yxz.wulibibiji.mybatis.entity
 
@@ -70,7 +114,7 @@ mybatis:
 logging:
   config: classpath:logback-spring.xml
   level:
-    com.yxz.wulibibiji: debug
+    com.yxz.wulibibiji: info
 
 
 #七牛配置

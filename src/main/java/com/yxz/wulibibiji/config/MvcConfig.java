@@ -3,13 +3,12 @@ package com.yxz.wulibibiji.config;
 import com.yxz.wulibibiji.utils.LoginInterceptor;
 import com.yxz.wulibibiji.utils.RefreshTokenInterceptor;
 import com.yxz.wulibibiji.utils.UVInterceptor;
+import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import javax.annotation.Resource;
 
 /**
  * @author yangxiaozhuo
@@ -17,8 +16,9 @@ import javax.annotation.Resource;
  */
 @Configuration
 public class MvcConfig implements WebMvcConfigurer {
-    @Resource
-    StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    RedissonClient redissonClient;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -29,7 +29,7 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/user/sentCode",
                         "/user/create",
                         "/user/login",
-                        "/user/quary/**",
+                        "/user/query/**",
                         "/user/isLogin",
                         "/uv/**",
                         "/sonComment/getList",
@@ -42,10 +42,11 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/article/new",
                         "/article/hot",
                         "/article/detail/**",
-                        "/article/all"
+                        "/article/all",
+                        "/article/search"
                 ).order(1);
-        registry.addInterceptor(new RefreshTokenInterceptor(stringRedisTemplate)).addPathPatterns("/**").order(0);
-        registry.addInterceptor(new UVInterceptor(stringRedisTemplate)).addPathPatterns("/article/new").order(0);
+        registry.addInterceptor(new RefreshTokenInterceptor(redissonClient)).addPathPatterns("/**").order(0);
+        registry.addInterceptor(new UVInterceptor(redissonClient)).addPathPatterns("/article/new").order(0);
     }
 
     // 请求跨域

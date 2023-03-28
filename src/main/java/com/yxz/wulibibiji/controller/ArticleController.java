@@ -3,6 +3,7 @@ package com.yxz.wulibibiji.controller;
 import com.yxz.wulibibiji.dto.ArticleDTO;
 import com.yxz.wulibibiji.dto.Result;
 import com.yxz.wulibibiji.service.ArticleService;
+import com.yxz.wulibibiji.service.EsArticleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -23,6 +24,9 @@ import java.util.List;
 public class ArticleController {
     @Resource
     private ArticleService articleService;
+
+    @Resource
+    private EsArticleService esArticleService;
 
     @ApiImplicitParams({
             @ApiImplicitParam(name = "category", value = "分类id", dataType = "Integer", required = false),
@@ -53,16 +57,6 @@ public class ArticleController {
         return articleService.createArticle(articleDTO);
     }
 
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "files", value = "文件列表", dataType = "List<MultipartFile>", required = true),
-            @ApiImplicitParam(name = "articleId", value = "文章id", dataType = "Integer", required = true),
-    })
-    @ApiOperation(value = "上传文章图片", notes = "最多上传9张图片，大小限制10m以内")
-    @PostMapping("/uploadImg")
-    public Result uploadImg(@RequestParam("files") List<MultipartFile> files, @RequestParam("articleId") Integer id) {
-        return articleService.uploadImg(files, id);
-    }
-
     @ApiImplicitParam(name = "id", value = "文章id", dataType = "Integer", required = true)
     @ApiOperation(value = "给文章点赞或取消")
     @PutMapping("/like/{id}")
@@ -85,5 +79,12 @@ public class ArticleController {
     @GetMapping("/all")
     public Result allArticle(@RequestParam("useId") String useId, @RequestParam(value = "current", defaultValue = "1") Integer current) {
         return articleService.allArticle(useId, current);
+    }
+
+    @ApiImplicitParam(name = "key", value = "检索关键字", dataType = "Sting", required = false)
+    @ApiOperation(value = "查询文章", notes = "返回文章简单信息和id")
+    @GetMapping("/search")
+    public Result search(@RequestParam("key") String key) {
+        return esArticleService.search(key);
     }
 }

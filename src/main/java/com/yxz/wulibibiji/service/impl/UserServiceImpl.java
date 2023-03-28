@@ -3,10 +3,12 @@ package com.yxz.wulibibiji.service.impl;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileTypeUtil;
 import cn.hutool.core.lang.UUID;
+import cn.hutool.core.lang.Validator;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestAlgorithm;
 import cn.hutool.crypto.digest.Digester;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yxz.wulibibiji.dto.LoginFormDTO;
 import com.yxz.wulibibiji.dto.Result;
@@ -19,14 +21,15 @@ import com.yxz.wulibibiji.utils.MailClient;
 import com.yxz.wulibibiji.utils.MyFileUtil;
 import com.yxz.wulibibiji.utils.RedisConstants;
 import com.yxz.wulibibiji.utils.UserHolder;
+import org.redisson.api.RMap;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,8 +46,8 @@ import static com.yxz.wulibibiji.utils.SystemConstants.*;
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
-    @Resource
-    private StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private RedissonClient redissonClient;
 
     @Autowired
     private MailClient mailClient;
@@ -60,9 +63,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     //发送验证码
     @Override
+    @DS("slave")
     public Result sentCode(String email) {
-        //检查邮箱格式是否正确
-        if (email == null || !ckeckEmail(email)) {
+        //检查邮箱格式是否正确  email == null ||
+        if (!ckeckEmail(email)) {
             return Result.fail("邮箱格式不正确,请检查后再次填写");
         }
         //检查用户是否已经存在
@@ -79,7 +83,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return Result.fail("密码不符合要求");
         }
         String key = CREATE_CODE_KEY + loginFormDTO.getEmail();
-        String redisCode = stringRedisTemplate.opsForValue().get(key);
+        String redisCode = (String) redissonClient.getBucket(key).get();
         if (redisCode == null || !redisCode.equals(loginFormDTO.getCode())) {
             return Result.fail("邮箱或验证码错误，请重试");
         }
@@ -94,6 +98,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
+    @DS("slave")
     public Result login(LoginFormDTO loginForm) {
         //1.验证邮箱 2.验证账号密码 3.不存在或不一致 报错
         String email = loginForm.getEmail();
@@ -107,21 +112,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         //单点登录 email - token
         String single = SINGLE_POINT_KEY + loginForm.getEmail();
-        String s = stringRedisTemplate.opsForValue().get(single);
+        String s = (String) redissonClient.getBucket(single).get();
         if (!StrUtil.isBlank(s)) {
-            stringRedisTemplate.delete(LOGIN_USER_KEY + s);
+            redissonClient.getBucket(LOGIN_USER_KEY + s).delete();
         }
         String token = UUID.randomUUID().toString(true);
-        stringRedisTemplate.opsForValue().set(single, token, LOGIN_USER_TTL, TimeUnit.HOURS);
+        redissonClient.getBucket(single).set(token, LOGIN_USER_TTL, TimeUnit.HOURS);
         String key = LOGIN_USER_KEY + token;
         Map<String, Object> map = new HashMap<>();
         map.put("email", user.getUserId());
         map.put("nickName", user.getNickname());
         map.put("avatar", IMAGE_UPLOAD_DIR + user.getAvatar());
         map.put("sex", user.getSex().toString());
-        stringRedisTemplate.opsForHash().putAll(key, map);
-        stringRedisTemplate.expire(key, LOGIN_USER_TTL, TimeUnit.HOURS);
-//        session.setAttribute("authorization", token);
+        RMap<Object, Object> temp = redissonClient.getMap(key);
+        temp.expire(LOGIN_USER_TTL, TimeUnit.HOURS);
+        temp.putAll(map);
         return Result.ok(token);
     }
 
@@ -149,6 +154,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
+    @Transactional
     public Result uploadAvatar(MultipartFile file, HttpServletRequest request) {
         if (!MyFileUtil.isImg(file)) {
             return Result.fail("只支持jpg、png、webp、jpeg四种图片格式");
@@ -172,7 +178,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 updateById(user);
                 //更新redis
                 String token = RedisConstants.LOGIN_USER_KEY + request.getHeader("authorization");
-                stringRedisTemplate.opsForHash().put(token, "avatar", url);
+                redissonClient.getMap(token).put("avatar", url);
                 //删除旧头像
                 if (!oldAvatar.equals(IMAGE_UPLOAD_DIR + DEFAULT_AVATAR)) {
                     String oldKey = oldAvatar.substring(IMAGE_UPLOAD_DIR.length());
@@ -209,7 +215,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public Result quaryUserInfo(String userId) {
+    @DS("slave")
+    public Result queryUserInfo(String userId) {
         User user = query().eq("user_id", userId).one();
         if (user == null) {
             return Result.fail("没有此用户");
@@ -227,9 +234,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         //1。获取token
         String token = request.getHeader("authorization");
         String key = RedisConstants.LOGIN_USER_KEY + token;
-        stringRedisTemplate.delete(key);
+        redissonClient.getBucket(key).delete();
         String single = SINGLE_POINT_KEY + user.getEmail();
-        stringRedisTemplate.delete(single);
+        redissonClient.getBucket(single).delete();
         return Result.ok("退出登录成功");
 
     }
@@ -246,8 +253,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String code = RandomUtil.randomNumbers(6);
         String key = CREATE_CODE_KEY + email;
         //redis新增缓存
-        stringRedisTemplate.opsForValue().set(key, code, CREATECODE_TTL, TimeUnit.MINUTES);
-
+        redissonClient.getBucket(key).set(code, CREATECODE_TTL, TimeUnit.MINUTES);
         context.setVariable("code", code);
         String content = templateEngine.process("mail/mail", context);
         try {
@@ -291,7 +297,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return
      */
     private boolean ckeckEmail(String email) {
-        return email.length() == 18 && "@whut.edu.cn".equals(email.substring(6));
+        return Validator.isEmail(email);
+//        return email.length() == 18 && "@whut.edu.cn".equals(email.substring(6));
     }
 }
 

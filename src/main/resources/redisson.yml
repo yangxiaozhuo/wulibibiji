@@ -1,0 +1,45 @@
+clusterServersConfig:
+  idleConnectionTimeout: 10000
+#  pingTimeout: 1000
+  connectTimeout: 10000
+  timeout: 3000
+  retryAttempts: 3
+  retryInterval: 1500
+  reconnectionTimeout: 3000
+  failedAttempts: 3
+  password: null
+  subscriptionsPerConnection: 5
+  clientName: null
+  loadBalancer: !<org.redisson.connection.balancer.RoundRobinLoadBalancer> {}
+  slaveSubscriptionConnectionMinimumIdleSize: 1
+  slaveSubscriptionConnectionPoolSize: 50
+  slaveConnectionMinimumIdleSize: 32
+  slaveConnectionPoolSize: 64
+  masterConnectionMinimumIdleSize: 32
+  masterConnectionPoolSize: 64
+  readMode: "MASTER_SLAVE"
+  nodeAddresses:
+    - "redis://1.117.158.138:7001"
+    - "redis://1.117.158.138:7002"
+    - "redis://1.117.158.138:7003"
+    - "redis://1.117.158.138:7004"
+    - "redis://1.117.158.138:7005"
+    - "redis://1.117.158.138:7006"
+  scanInterval: 1000
+threads: 0
+nettyThreads: 0
+codec: !<org.redisson.codec.JsonJacksonCodec> {}
+"transportMode":"NIO"
+
+
+#masterSlaveServersConfig:
+#  # 设置主节点地址和密码
+#  masterAddress: "redis://1.117.158.138:6300"
+#  password: "9hcbq5d8m5yo44c"
+#  # 添加从节点地址和密码，支持添加多个从节点
+#  slaveAddresses:
+#    - "redis://124.71.183.56:6300"
+#  # 读写分离模式
+#  readMode: "MASTER_SLAVE"
+#  subscriptionMode: "SLAVE"
+
