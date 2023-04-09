@@ -21,7 +21,7 @@ spring:
           driver-class-name: com.mysql.jdbc.Driver
           url: jdbc:mysql://1.117.158.138:3307/wulibbj?serverTimezone=Asia/Shanghai&characterEncoding=UTF8&autoReconnect=true&useSSL=false&allowMultiQueries=true
           username: root
-          password: jxw78d3xl6r0wy7jb
+          password: wzywylzs
           druid:
             # 初始连接数
             initial-size: 4
@@ -35,7 +35,7 @@ spring:
           driver-class-name: com.mysql.jdbc.Driver
           url: jdbc:mysql://124.71.183.56:3307/wulibbj?serverTimezone=Asia/Shanghai&characterEncoding=UTF8&autoReconnect=true&useSSL=false&allowMultiQueries=true
           username: root
-          password: jxw78d3xl6r0wy7jb
+          password: wzywylzs
           druid:
             # 初始连接数
             initial-size: 4
@@ -49,7 +49,7 @@ spring:
           driver-class-name: com.mysql.jdbc.Driver
           url: jdbc:mysql://1.117.158.138:3307/wulibbj?serverTimezone=Asia/Shanghai&characterEncoding=UTF8&autoReconnect=true&useSSL=false&allowMultiQueries=true
           username: root
-          password: jxw78d3xl6r0wy7jb
+          password: wzywylzs
           druid:
             # 初始连接数
             initial-size: 4
@@ -114,7 +114,7 @@ mybatis-plus:
 logging:
   config: classpath:logback-spring.xml
   level:
-    com.yxz.wulibibiji: info
+    com.yxz.wulibibiji: debug
 
 
 #七牛配置
