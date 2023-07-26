@@ -29,6 +29,7 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/user/sentCode",
                         "/user/create",
                         "/user/login",
+                        "/user/loginPlus",
                         "/user/query/**",
                         "/user/isLogin",
                         "/uv/**",

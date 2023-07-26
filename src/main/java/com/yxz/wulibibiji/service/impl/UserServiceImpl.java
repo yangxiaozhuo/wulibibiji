@@ -129,6 +129,39 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         temp.putAll(map);
         return Result.ok(token);
     }
+    @Override
+    @DS("slave")
+    public Result loginPlus(LoginFormDTO loginForm) {
+        //1.验证邮箱 2.验证账号密码 3.不存在或不一致 报错
+        String email = loginForm.getEmail();
+        String password = loginForm.getPassword();
+        User user = query().eq("user_id", email).one();
+        if (user == null) {
+            return Result.fail("该用户未注册");
+        }
+        if (!user.getPassword().equals(password)) {
+            return Result.fail("账号或用户名错误,请核实后再试!");
+        }
+        //单点登录 email - token
+        String single = SINGLE_POINT_KEY + loginForm.getEmail();
+        String s = (String) redissonClient.getBucket(single).get();
+        if (!StrUtil.isBlank(s)) {
+            redissonClient.getBucket(LOGIN_USER_KEY + s).delete();
+        }
+        String token = UUID.randomUUID().toString(true);
+        redissonClient.getBucket(single).set(token, LOGIN_USER_TTL, TimeUnit.HOURS);
+        String key = LOGIN_USER_KEY + token;
+        Map<String, Object> map = new HashMap<>();
+        map.put("email", user.getUserId());
+        map.put("nickName", user.getNickname());
+        map.put("avatar", IMAGE_UPLOAD_DIR + user.getAvatar());
+        map.put("sex", user.getSex().toString());
+        RMap<Object, Object> temp = redissonClient.getMap(key);
+        temp.expire(LOGIN_USER_TTL, TimeUnit.HOURS);
+        temp.putAll(map);
+        map.put("token", token);
+        return Result.ok(map);
+    }
 
     @Override
     public Result edit(User user) {

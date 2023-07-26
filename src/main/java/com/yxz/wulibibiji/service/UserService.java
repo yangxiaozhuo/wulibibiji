@@ -21,6 +21,8 @@ public interface UserService extends IService<User> {
 
     Result login(LoginFormDTO loginForm);
 
+    Result loginPlus(LoginFormDTO loginForm);
+
     Result edit(User user);
 
     Result uploadAvatar(MultipartFile file, HttpServletRequest request);

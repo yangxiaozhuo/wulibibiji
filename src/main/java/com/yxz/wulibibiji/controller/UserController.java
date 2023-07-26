@@ -49,6 +49,13 @@ public class UserController {
         return userService.login(loginForm);
     }
 
+    @ApiImplicitParam(name = "loginForm", value = "用户登录对象", dataType = "LoginFormDTO", required = true)
+    @ApiOperation(value = "用户登录,新接口，后续开发用这个。")
+    @PostMapping("/loginPlus")
+    public Result loginPlus(@RequestBody LoginFormDTO loginForm) {
+        return userService.loginPlus(loginForm);
+    }
+
     @ApiImplicitParam(name = "User", value = "用户User对象", dataType = "User", required = false)
     @ApiOperation(value = "编辑用户信息", notes = "需要传入nickname(昵称),sex(性别)")
     @PostMapping("/edit")
