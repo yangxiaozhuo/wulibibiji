@@ -59,6 +59,8 @@ public class Message implements Serializable {
     private String toAvatar;
     @TableField(exist = false)
     private String toNickname;
+    @TableField(exist = false)
+    private String unread;
 
     public String getFromAvatar() {
         return fromAvatar;
@@ -90,6 +92,14 @@ public class Message implements Serializable {
 
     public void setToNickname(String toNickname) {
         this.toNickname = toNickname;
+    }
+
+    public String getUnread() {
+        return unread;
+    }
+
+    public void setUnread(String unread) {
+        this.unread = unread;
     }
 
     /**

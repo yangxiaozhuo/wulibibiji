@@ -21,24 +21,49 @@
     </sql>
 
     <select id="selectListPage" resultType="com.yxz.wulibibiji.entity.Message">
-        select
+        SELECT aa.*, m.* FROM (
+        SELECT
             message.*,
-            a.avatar as from_avatar,
-            a.nickname as from_nickname,
-            b.avatar as to_avatar,
-            b.nickname as to_nickname
-        from message
+            a.avatar AS from_avatar,
+            a.nickname AS from_nickname,
+            b.avatar AS to_avatar,
+            b.nickname AS to_nickname
+        FROM  message
         LEFT JOIN `user` a ON a.user_id = message.from_id
         LEFT JOIN `user` b ON b.user_id = message.to_id
-        where id in(
-        select max(id) from message
+        WHERE
+        id IN (
+        SELECT MAX(id) FROM message
         <where>
             ${ew.sqlSegment}
         </where>
-        group by conversion_id
+        GROUP BY  conversion_id
         )
-        order by id desc
-        limit #{offset},#{size}
+        ORDER BY id DESC
+        LIMIT #{offset},#{size}
+        ) aa
+        INNER JOIN (SELECT m.conversion_id, COUNT(*) AS unread
+        FROM message m
+        WHERE m.status = 0
+        GROUP BY m.conversion_id) m on aa.conversion_id = m.conversion_id
+        <!--        select-->
+        <!--            message.*,-->
+        <!--            a.avatar as from_avatar,-->
+        <!--            a.nickname as from_nickname,-->
+        <!--            b.avatar as to_avatar,-->
+        <!--            b.nickname as to_nickname-->
+        <!--        from message-->
+        <!--        LEFT JOIN `user` a ON a.user_id = message.from_id-->
+        <!--        LEFT JOIN `user` b ON b.user_id = message.to_id-->
+        <!--        where id in(-->
+        <!--        select max(id) from message-->
+        <!--        <where>-->
+        <!--            ${ew.sqlSegment}-->
+        <!--        </where>-->
+        <!--        group by conversion_id-->
+        <!--        )-->
+        <!--        order by id desc-->
+        <!--        limit #{offset},#{size}-->
     </select>
 
     <select id="selectLatestNotice" resultType="com.yxz.wulibibiji.entity.Message">
