@@ -15,7 +15,17 @@ import java.util.List;
  */
 public interface MessageMapper extends BaseMapper<Message> {
 
-    List<Message> selectListPage(@Param("offset") long offset, @Param("size") long size, @Param("ew") Wrapper wrapper);
+    /**
+     * 查询消息列表
+     */
+    List<Message> selectListPage(@Param("offset") long offset, @Param("size") long size
+            , @Param("ew") Wrapper wrapper, @Param("my_id") String my_id);
+
+
+    /**
+     * 查询通知列表
+     */
+    List<Message> getNoticeList(@Param("email") String my_id);
 
     /**
      * 查询某个主题下最新的通知

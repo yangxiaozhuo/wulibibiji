@@ -63,7 +63,16 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         String email = UserHolder.getUser().getEmail();
         QueryWrapper<Message> wrapper = new QueryWrapper<>();
         wrapper.ne("status", "2").ne("from_id", 1).and(i -> i.eq("from_id", email).or().eq("to_id", email));
-        List<Message> messages = messageMapper.selectListPage((current - 1) * SystemConstants.MAX_PAGE_SIZE, SystemConstants.MAX_PAGE_SIZE, wrapper);
+        List<Message> messages = messageMapper.selectListPage((current - 1) * SystemConstants.MAX_PAGE_SIZE,
+                SystemConstants.MAX_PAGE_SIZE, wrapper, email);
+        return Result.ok(messages);
+    }
+
+    @Override
+    @DS("slave")
+    public Result getNoticeList() {
+        String email = UserHolder.getUser().getEmail();
+        List<Message> messages = messageMapper.getNoticeList(email);
         return Result.ok(messages);
     }
 

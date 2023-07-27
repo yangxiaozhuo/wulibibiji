@@ -21,6 +21,8 @@ public interface MessageService extends IService<Message> {
 
     Result getFirstList(Integer current);
 
+    Result getNoticeList();
+
     Result getUnreadCount(String userId);
 
     Result unreadPrivateMessage();

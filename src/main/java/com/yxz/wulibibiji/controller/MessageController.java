@@ -97,6 +97,12 @@ public class MessageController {
         return messageService.getFirstList(current);
     }
 
+    @ApiOperation(value = "查询通知列表接口", notes = "查询用户的通知的第一条,并且按照时间排序")
+    @GetMapping("/getNoticeList")
+    public Result getFirstList() {
+        return messageService.getNoticeList();
+    }
+
     @ApiImplicitParam(name = "userId", value = "对方用户id", dataType = "String", required = true)
     @ApiOperation(value = "查询和用户a之间有多少未读消息")
     @GetMapping("/getUnreadCount")
