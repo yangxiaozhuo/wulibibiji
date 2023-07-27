@@ -154,7 +154,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         Map<String, Object> map = new HashMap<>();
         map.put("email", user.getUserId());
         map.put("nickName", user.getNickname());
-        map.put("avatar", IMAGE_UPLOAD_DIR + user.getAvatar());
+        map.put("avatar", user.getAvatar());
         map.put("sex", user.getSex().toString());
         RMap<Object, Object> temp = redissonClient.getMap(key);
         temp.expire(LOGIN_USER_TTL, TimeUnit.HOURS);

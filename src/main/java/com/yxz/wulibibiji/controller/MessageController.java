@@ -85,7 +85,7 @@ public class MessageController {
     @ApiOperation(value = "查询和用户userId的聊天记录", notes = "默认展示最新的5条，上拉刷新")
     @GetMapping("/getMessage")
     public Result getMessage(@RequestParam(value = "userId") String userId,
-                             @RequestParam(value = "currend", defaultValue = "1") Integer current) {
+                             @RequestParam(value = "current", defaultValue = "1") Integer current) {
         return messageService.getMessage(userId, current);
     }
 

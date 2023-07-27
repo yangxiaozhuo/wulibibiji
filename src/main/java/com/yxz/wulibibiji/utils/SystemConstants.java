@@ -4,7 +4,7 @@ public class SystemConstants {
     /**
      * 图片存储连接
      */
-    public static final String IMAGE_UPLOAD_DIR = "http://qiniu.yangxiaobai.top/";
+    public static final String IMAGE_UPLOAD_DIR = "https://qiniu.yangxiaobai.top/";
 
     /**
      * 默认头像位置
